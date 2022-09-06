@@ -6,6 +6,10 @@ name = "pypi"
 [packages]
 django = "*"
 black = "*"
+djangorestframework = "*"
+pygments = "*"
+pyyaml = "*"
+django-filter = "*"
 
 [dev-packages]
 

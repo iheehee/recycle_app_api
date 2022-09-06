@@ -1,8 +1,7 @@
-from django.contrib import admin
-from django.urls import path, include
-from . import views
+from rest_framework import routers
+from .views import RecycleViewSet
 
-""" urlpatterns = [
-    path("list/",views.RoomDetail.as_view(), name="detail"),
-    
-] """
+router = routers.SimpleRouter()
+router.register("", RecycleViewSet)
+urlpatterns = router.urls
+
