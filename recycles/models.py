@@ -23,9 +23,9 @@ class Recycle(Core):
     name = models.CharField(max_length=140, default="")
     how_to_recyle = models.TextField(blank=True)
     tip = models.TextField(blank=True)
-    category = models.CharField(choices=CATEGORIES, max_length=40)
+    category = models.CharField(choices=CATEGORIES, max_length=40, blank=True)
     category_photo = models.FileField(
-        upload_to="category", verbose_name=("category_photo"), default=True
+        upload_to="category", verbose_name=("category_photo"), default=""
     )
 
     def __str__(self):
@@ -39,6 +39,7 @@ class Photo(Core):
         "Recycle",
         verbose_name=("trash name"),
         on_delete=models.CASCADE,
+        default=""
     )
 
     def __str__(self):

@@ -13,10 +13,12 @@ class RecycleViewSet(viewsets.ModelViewSet):
 
     def get_permissons(self):
         
-        if self.action == "list" or self.acion == "retrieve":
+        if self.action == "list" or self.action == "retrieve":
             permission_classes = [AllowAny]
         elif self.action == "create" or self.action == "update":
             permission_classes = [IsAdminUser]
+        else:
+            pass
         return [permission() for permission in permission_classes]
 
     @action(detail=False, permission_classes=[AllowAny])
