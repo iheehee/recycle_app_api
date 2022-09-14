@@ -1,6 +1,7 @@
 from rest_framework import serializers
-from rest_fremework.validators import UniqueValidator
-from 
+from rest_framework.validators import UniqueValidator
+from django.contrib.auth import authenticate
+from django.contrib.auth.password_validation import validate_password
 from .models import User
 
 
@@ -15,8 +16,9 @@ class UserSerializer(serializers.ModelSerializer):
             "email",
             "favs",
         )
-        exclude = ()
+        exclude = ('password',)
         read_only_fields = ("id", "favs")
+
 
 class UserRegisterSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(required=True, validators=[UniqueValidator(queryset=User.objects.all())])
@@ -25,8 +27,12 @@ class UserRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         field = ('username', 'password','email')
-
+        exclude = ()
+    
     def create(self, validated_data):
+        user = User.objects.create(**validated_data, is_active=False)
+        return user
+
 
 
 

@@ -5,7 +5,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser, AllowAny
 from rest_framework import status
-from .serializers import UserSerializer
+from .serializers import UserSerializer, UserRegisterSerializer
 from .models import User
 
 
@@ -16,28 +16,20 @@ class UserViewSet(ModelViewSet):
 
     def get_permissions(self):
 
-        global permission_classes
+        if self.action in ["list", "create"]:
+            return [AllowAny()]
 
+        return super().get_permissions()
+
+    def get_serializer_class(self):
         if self.action == "list":
-            permission_classes = [AllowAny]
-        elif self.action == "retrieve":
-            permission_classes = [AllowAny]
-        else:
-            pass
-        return [permission() for permission in permission_classes]
+            return UserSerializer
+        if self.action == "create":
+            return UserRegisterSerializer
 
-class UserRegisterViewSet(ModelViewSet):
-
-    queryset = User.objects.all()
-    serializer_class = UserRegisterSerializer
+        return super().get_serializer_class()
 
 
-
-    def login(self, request):
-        username = request.data.get("username")
-        password = request.data.get("password")
-        if not username or not password:
-            return Response()
-        user = authenticate(username=username, password=password)
-        
-        
+    def create(self, request, *args, **kwargs):
+        """회원가입"""
+        return super().create(request, *args, **kwargs)
