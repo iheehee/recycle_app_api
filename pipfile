@@ -10,6 +10,7 @@ djangorestframework = "*"
 pygments = "*"
 pyyaml = "*"
 django-filter = "*"
+pyjwt = "*"
 
 [dev-packages]
 

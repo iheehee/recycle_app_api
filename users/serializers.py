@@ -17,44 +17,51 @@ class UserSerializer(serializers.ModelSerializer):
             "email",
             "favs",
         )
-        exclude = ('password',)
+        exclude = ("password",)
         read_only_fields = ("id", "favs")
 
 
 class UserRegisterSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(required=True, validators=[UniqueValidator(queryset=User.objects.all())])
-    password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
+    email = serializers.EmailField(
+        required=True, validators=[UniqueValidator(queryset=User.objects.all())]
+    )
+    password = serializers.CharField(
+        write_only=True, required=True, validators=[validate_password]
+    )
 
     class Meta:
         model = User
-        field = ('username', 'password','email')
+        field = ("username", "password", "email")
         exclude = ()
-    
+
     def create(self, validated_data):
         user = User.objects.create(**validated_data, is_active=False)
         return user
 
+
 class LoginSerializer(serializers.Serializer):
     """로그인"""
-    #email = serializers.EmailField()
+
+    # email = serializers.EmailField()
     password = serializers.CharField()
-    username = serializers.CharField(style={'input_type': 'password'})
+    username = serializers.CharField(style={"input_type": "password"})
 
     def validate(self, obj):
-        username = obj.get('username')
-        #email = obj.get('email')
-        password = obj.get('password')
-        if not (username and password) :
+        username = obj.get("username")
+        # email = obj.get('email')
+        password = obj.get("password")
+        if not (username and password):
             raise serializers.ValidationError()
         user = authenticate(username=username, password=password)
-        obj['user'] = user
+        obj["user"] = user.id
         return obj
 
-    
+class ProfileUpdateSerializer(serializers.Serializer):
+    """토큰 필요"""
 
+    nickname = serializers.CharField(validators=[UniqueValidator(queryset=User.objects.all())])
 
-
-
-
-
-
+    class Meta:
+        model = User
+        field = ("nickname", )
+        exclude = ()
