@@ -1,9 +1,9 @@
-from dataclasses import field
 from rest_framework import serializers
+
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
-from .models import User
+from .models import User, Profile
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -16,6 +16,7 @@ class UserSerializer(serializers.ModelSerializer):
             "last_name",
             "email",
             "favs",
+            "nickname",
         )
         exclude = ("password",)
         read_only_fields = ("id", "favs")
@@ -56,12 +57,17 @@ class LoginSerializer(serializers.Serializer):
         obj["user"] = user.id
         return obj
 
-class ProfileUpdateSerializer(serializers.Serializer):
-    """토큰 필요"""
 
-    nickname = serializers.CharField(validators=[UniqueValidator(queryset=User.objects.all())])
+class ProfileUpdateSerializer(serializers.ModelSerializer):
+    """토큰 필요"""
+    
+    nickname = serializers.CharField(
+        validators=[UniqueValidator(queryset=User.objects.all())]
+    )
 
     class Meta:
         model = User
-        field = ("nickname", )
+        field = ("nickname",)
         exclude = ()
+
+    

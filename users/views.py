@@ -1,12 +1,12 @@
 import jwt
-from urllib import request
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticated
 from rest_framework import status
-from .serializers import LoginSerializer, UserSerializer, UserRegisterSerializer
+from .permissions import IsSelf
+from .serializers import LoginSerializer, UserSerializer, UserRegisterSerializer, ProfileUpdateSerializer
 from .models import User
 
 
@@ -22,6 +22,8 @@ class UserViewSet(ModelViewSet):
             return UserSerializer
         elif self.action == "create":
             return UserRegisterSerializer
+        elif self.action == "update":
+            return ProfileUpdateSerializer
 
         return super().get_serializer_class()
 
@@ -29,8 +31,8 @@ class UserViewSet(ModelViewSet):
 
         if self.action in ["list", "create", "login", "retrieve"]:
             return [AllowAny()]
-        elif self.action in ['update']:
-            return [IsSelf()]
+        if self.action in ["update"]:
+            return [AllowAny()]
 
         return super().get_permissions()
 
@@ -38,7 +40,7 @@ class UserViewSet(ModelViewSet):
         """회원가입"""
         return super().create(request, *args, **kwargs)
 
-    @action(detail=False, methods=["post"], url_path="login", url_name="login")
+    @action(detail=True, methods=["post"], url_path="login", url_name="login")
     def login(self, request, *args, **kwargs):
         """로그인"""
         serializer = self.get_serializer(data=request.data)
@@ -49,10 +51,8 @@ class UserViewSet(ModelViewSet):
             return Response(data=encoded_jwt)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
-    
-    def partial_update(self, request, *args, **kwargs):
+
+    def update(self, request, *args, **kwargs):
         """프로필 수정"""
+        
         return super().update(request, *args, **kwargs)
-
-
-    
