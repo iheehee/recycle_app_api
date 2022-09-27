@@ -12,9 +12,6 @@ class UserAdmin(UserAdmin):
             {"fields": ("avatar", "favs")},
         ),
     )
-    list_display = ("username", "email","nick_name")
+    list_display = ("username", "email",)
 
-@admin.register(models.Profile)
-class ProfileAdmin(admin.ModelAdmin):
 
-    list_display = ("user", "nickname")

@@ -20,6 +20,8 @@ class UserViewSet(ModelViewSet):
             return LoginSerializer
         elif self.action == "list":
             return UserSerializer
+        elif self.action == "retrieve":
+            return UserSerializer
         elif self.action == "create":
             return UserRegisterSerializer
         elif self.action == "update":
