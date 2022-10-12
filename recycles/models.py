@@ -44,3 +44,4 @@ class Photo(Core):
 
     def __str__(self):
         return self.trash_name
+

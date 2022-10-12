@@ -1,6 +1,4 @@
-import email
 from rest_framework import serializers
-
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
@@ -23,7 +21,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 class UserRegisterSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
-        required=True, validators=[UniqueValidator(queryset=User.objects.all())]
+        required=True, validators=[UniqueValidator(queryset=User.objects.all())],
     )
     password = serializers.CharField(
         write_only=True, required=True, validators=[validate_password]
@@ -31,7 +29,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        field = ("username", "password", "email")
+        field = ("password", "email")
         exclude = ()
 
     def create(self, validated_data):
@@ -41,23 +39,24 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
 class LoginSerializer(serializers.Serializer):
     """로그인"""
-
+    username = serializers.CharField()
     password = serializers.CharField()
-    email = serializers.EmailField()
+    #email = serializers.EmailField()
 
     def validate(self, obj):
-        username = obj.get("email")
+        username = obj.get("username")
         # email = obj.get('email')
         password = obj.get("password")
         if not (username and password):
             raise serializers.ValidationError()
-        user = authenticate(username=email, password=password)
+        user = authenticate(username=username, password=password)
+        print(user)
         obj["user"] = user.id
         return obj
 
 
 class ProfileUpdateSerializer(serializers.ModelSerializer):
-    """토큰 필요"""
+    """회원정보 수정"""
 
     nickname = serializers.CharField(
         validators=[UniqueValidator(queryset=User.objects.all())]

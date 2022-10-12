@@ -18,13 +18,13 @@ class UserViewSet(ModelViewSet):
     def get_serializer_class(self):
         if self.action == "login":
             return LoginSerializer
-        elif self.action == "list":
+        if self.action == "list":
             return UserSerializer
-        elif self.action == "retrieve":
+        if self.action == "retrieve":
             return UserSerializer
-        elif self.action == "create":
+        if self.action == "create":
             return UserRegisterSerializer
-        elif self.action == "update":
+        if self.action == "update":
             return ProfileUpdateSerializer
 
         return super().get_serializer_class()
@@ -33,8 +33,8 @@ class UserViewSet(ModelViewSet):
 
         if self.action in ["list", "create", "login", "retrieve"]:
             return [AllowAny()]
-        if self.action in ["update"]:
-            return [AllowAny()]
+        #if self.action in ["update"]:
+        #    return [AllowAny()]
 
         return super().get_permissions()
 
@@ -42,9 +42,13 @@ class UserViewSet(ModelViewSet):
         """회원가입"""
         return super().create(request, *args, **kwargs)
 
-    @action(detail=True, methods=["post"], url_path="login", url_name="login")
+    @action(detail=False, methods=["post"], url_path="login", url_name="login")
     def login(self, request, *args, **kwargs):
         """로그인"""
+        username = request.data.get("username")
+        password = request.data.get("password")
+        if not (username and password):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data["user"]
