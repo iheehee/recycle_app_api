@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth import authenticate
+#from .authenticate import EmailAuthenticate
 from django.contrib.auth.password_validation import validate_password
 from .models import User
 
@@ -39,13 +40,12 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
 class LoginSerializer(serializers.Serializer):
     """로그인"""
-    username = serializers.CharField()
+    email = serializers.EmailField()
     password = serializers.CharField()
     #email = serializers.EmailField()
 
     def validate(self, obj):
-        username = obj.get("username")
-        # email = obj.get('email')
+        username = obj.get("email")
         password = obj.get("password")
         if not (username and password):
             raise serializers.ValidationError()

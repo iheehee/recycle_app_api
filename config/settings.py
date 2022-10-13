@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "recycles.apps.RecyclesConfig",
     "users.apps.UsersConfig",
     "rest_framework",
+    "django_extensions",
 ]
 
 MIDDLEWARE = [
@@ -104,10 +105,18 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTH_USER_MODEL = "users.User"
+
+#AUTHENTICATION_BACKENDS = (
+#    "path.to.CustomBackend",
+#)
+
+AUTHENTICATION_BACKENDS = ["users.backends.CustomUserModelBackend"]
+
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
-        'rest_framework.permissions.AllowAny',
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+        "rest_framework.permissions.AllowAny",
     ]
 }
 
@@ -122,7 +131,7 @@ USE_I18N = True
 
 USE_TZ = True
 
-AUTH_USER_MODEL = 'users.User'
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 

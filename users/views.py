@@ -45,9 +45,9 @@ class UserViewSet(ModelViewSet):
     @action(detail=False, methods=["post"], url_path="login", url_name="login")
     def login(self, request, *args, **kwargs):
         """로그인"""
-        username = request.data.get("username")
+        email = request.data.get("email")
         password = request.data.get("password")
-        if not (username and password):
+        if not (email and password):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -58,7 +58,7 @@ class UserViewSet(ModelViewSet):
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-    def update(self, request, *args, **kwargs):
+    #def update(self, request, *args, **kwargs):
         """프로필 수정"""
         
-        return super().update(request, *args, **kwargs)
+    #    return super().update(request, *args, **kwargs)
