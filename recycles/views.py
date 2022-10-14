@@ -29,7 +29,7 @@ class RecycleViewSet(viewsets.ModelViewSet):
         filter_kwarg["name"] = recycle
         recycles = Recycle.objects.filter(**filter_kwarg)
         if len(recycles) == 0:
-            return Response({"dd": "값이 없습니다."})
+            return Response({"resulet": "값이 없습니다."})
         else:
             serializer = RecycleSerializer(recycles, many=True)
         return Response(serializer.data)

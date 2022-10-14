@@ -51,8 +51,13 @@ class LoginSerializer(serializers.Serializer):
             raise serializers.ValidationError()
         user = authenticate(username=username, password=password)
         print(user)
-        obj["user"] = user.id
-        return obj
+        try:
+            obj["user"] = user.id
+            return obj
+        except AttributeError:
+            obj["user"] = None
+            return obj
+
 
 
 class ProfileUpdateSerializer(serializers.ModelSerializer):

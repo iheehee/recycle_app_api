@@ -31,7 +31,7 @@ class UserViewSet(ModelViewSet):
 
     def get_permissions(self):
 
-        if self.action in ["list", "create", "login", "retrieve"]:
+        if self.action in ["list", "create", "login", "retrieve", "update"]:
             return [AllowAny()]
         #if self.action in ["update"]:
         #    return [AllowAny()]
@@ -55,10 +55,10 @@ class UserViewSet(ModelViewSet):
         if user is not None:
             encoded_jwt = jwt.encode({"user": user}, "secret", algorithm="HS256")
             return Response(data=encoded_jwt)
-        else:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        else :
+            return Response(data={"아이디가 없습니다"}, status=status.HTTP_401_UNAUTHORIZED)
 
-    #def update(self, request, *args, **kwargs):
+    #@action(detail=True, methods=["update"])
+    def update(self, request, *args, **kwargs):
         """프로필 수정"""
-        
-    #    return super().update(request, *args, **kwargs)
+        return super().update(request, *args, **kwargs)
