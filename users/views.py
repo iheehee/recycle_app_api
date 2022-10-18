@@ -24,17 +24,17 @@ class UserViewSet(ModelViewSet):
             return UserSerializer
         if self.action == "create":
             return UserRegisterSerializer
-        if self.action == "update":
+        if self.action == "partial_update":
             return ProfileUpdateSerializer
 
         return super().get_serializer_class()
 
     def get_permissions(self):
 
-        if self.action in ["list", "create", "login", "retrieve", "update"]:
+        if self.action in ["list", "create", "login", "retrieve"]:
             return [AllowAny()]
-        #if self.action in ["update"]:
-        #    return [AllowAny()]
+        if self.action in ["update"]:
+            return [IsSelf()]
 
         return super().get_permissions()
 
@@ -56,9 +56,10 @@ class UserViewSet(ModelViewSet):
             encoded_jwt = jwt.encode({"user": user}, "secret", algorithm="HS256")
             return Response(data=encoded_jwt)
         else :
-            return Response(data={"아이디가 없습니다"}, status=status.HTTP_401_UNAUTHORIZED)
-
-    #@action(detail=True, methods=["update"])
-    def update(self, request, *args, **kwargs):
+            return Response(data={"아이디와 비빌번호를 다시 확인해주세요."}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    def partial_update(self, request, *args, **kwargs):
         """프로필 수정"""
         return super().update(request, *args, **kwargs)
+
+

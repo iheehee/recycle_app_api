@@ -6,13 +6,9 @@ from . import models
 @admin.register(models.User)
 class UserAdmin(admin.ModelAdmin):
 
-    
-    #fieldsets = UserAdmin.fieldsets + (
-    #   (
-    #        "Custom Profile",
-    #        {"fields": ("avatar","favs")},
-    #    ),
-    #)
-    list_display = ("email", "nickname",)
+    list_display = ("nickname", "email", )
 
+#@admin.register(models.Profile)
+#class ProfileAdmin(admin.ModelAdmin):
 
+#    list_display = ("avatar", )

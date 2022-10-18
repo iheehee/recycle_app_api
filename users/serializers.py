@@ -17,21 +17,21 @@ class UserSerializer(serializers.ModelSerializer):
             "email",
         )
         exclude = ("password",)
-        read_only_fields = ("id", "favs")
+        read_only_fields = ("id",)
 
 
 class UserRegisterSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
-        required=True, validators=[UniqueValidator(queryset=User.objects.all())],
+        validators=[UniqueValidator(queryset=User.objects.all())],
     )
     password = serializers.CharField(
-        write_only=True, required=True, validators=[validate_password]
+        write_only=True, validators=[validate_password]
     )
 
     class Meta:
         model = User
         field = ("password", "email")
-        exclude = ()
+        exclude = ("username", "is_superuser","is_staff", "groups", "user_permissions")
 
     def create(self, validated_data):
         user = User.objects.create(**validated_data, is_active=False)
@@ -70,9 +70,11 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         field = ("nickname",)
-        exclude = ()
+        exclude = ("username", "is_superuser","is_staff", "groups", "user_permissions","password","last_login","is_active","date_joined")
+        read_only_fields = ("id", "email")
 
     def update(self, instance, validated_data):
         instance.nickname = validated_data.get("nickname", instance.nickname)
         instance.save()
         return instance
+
