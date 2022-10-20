@@ -51,7 +51,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = ["nickname"]
 
     def __str__(self):
-        return self.email
+        return self.nickname
 
 
 class Profile(models.Model):

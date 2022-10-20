@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "core.apps.CoreConfig",
     "recycles.apps.RecyclesConfig",
     "users.apps.UsersConfig",
+    "challenges.apps.ChallengesConfig",
     "rest_framework",
     "django_extensions",
 ]

@@ -13,6 +13,7 @@ django-filter = "*"
 pyjwt = "*"
 django-extensions = "*"
 django-allauth = "!=0.42.0"
+pillow = "*"
 
 [dev-packages]
 
