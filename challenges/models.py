@@ -24,16 +24,17 @@ class Challenge(Core):
         ("5week", "5주 동안"),
         ("6week", "6주 동안"),
         ("7week", "7주 동안"),
+        ("8week", "8주 동안"),
     )
 
     title = models.CharField(max_length=140, default="")
-    owner = models.OneToOneField("users.User", on_delete=models.CASCADE, related_name="challenge_owner")
+    owner = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name="challenge_owner")
     title_banner = models.ImageField(upload_to="title_banner", default="",blank=True)
     challenge_summery = models.CharField(max_length=255, blank=True)
     challenge_description = models.TextField(blank=True)
     start_day = models.DateTimeField()
     frequency = models.CharField(max_length=50, choices=FREQUENCY, default="")
-    duration = models.CharField(max_length=50, choices=FREQUENCY, null=True)
+    duration = models.CharField(max_length=50, choices=DURATIONS, null=True)
     certification_success_photo_example = models.ImageField(
         verbose_name="success photo",
         upload_to="success_photo_ex",
@@ -51,13 +52,12 @@ class Challenge(Core):
         blank=True
     )
     certification_notice = models.TextField(blank=True)
-    members = models.ManyToManyField("users.User", default="", related_name="challenge_member")
-
-
+    member = models.ManyToManyField("users.Profile", related_name="member")
 
     def __str__(self):
         return self.title
 
+    
 class ChallengeReview(models.Model):
     rating = models.IntegerField(null=True)
     comment = models.CharField(max_length=100, default="")

@@ -6,6 +6,7 @@ from django.contrib.auth.models import (
 )
 
 
+
 class CustomUserManager(BaseUserManager):
 
     use_in_migrations = True
@@ -56,4 +57,4 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class Profile(models.Model):
     avatar = models.FileField(upload_to="avatar", blank=True, default="")
-    # fav = models.ManyToManyField("recycles.Recycle", default="")
+    has_challenge = models.ManyToManyField("challenges.challenge")

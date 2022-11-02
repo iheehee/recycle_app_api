@@ -20,6 +20,15 @@ class UserSerializer(serializers.ModelSerializer):
         read_only_fields = ("id",)
 
 
+class RelatedUserSerializer(serializers.ModelSerializer):
+    
+    nickname = serializers.CharField()
+    class Meta:
+        model = User
+        fields = (
+            "nickname",
+        )
+
 class UserRegisterSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
         validators=[UniqueValidator(queryset=User.objects.all())],

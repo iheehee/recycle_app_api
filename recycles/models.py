@@ -27,6 +27,7 @@ class Recycle(Core):
     category_photo = models.FileField(
         upload_to="category", verbose_name=("category_photo"), default=""
     )
+    
 
     def __str__(self):
         return self.name
