@@ -1,3 +1,4 @@
+from urllib import request
 import jwt
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
@@ -61,5 +62,9 @@ class UserViewSet(ModelViewSet):
     def partial_update(self, request, *args, **kwargs):
         """프로필 수정"""
         return super().update(request, *args, **kwargs)
+
+    #@action(detail=True, method=["post"])
+    #def regist_challenges(self, request, *args, **kwargs):
+    #    pk = 
 
 

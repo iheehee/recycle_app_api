@@ -8,7 +8,7 @@ class UserAdmin(admin.ModelAdmin):
 
     list_display = ("nickname", "email", )
 
-#@admin.register(models.Profile)
-#class ProfileAdmin(admin.ModelAdmin):
+@admin.register(models.Profile)
+class ProfileAdmin(admin.ModelAdmin):
 
-#    list_display = ("avatar", )
+    list_display = ("nickname","avatar", )

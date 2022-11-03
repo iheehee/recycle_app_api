@@ -10,6 +10,7 @@ class ChallengeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Challenge
         fields = (
+            "id",
             "title",
             "owner",
             "title_banner",

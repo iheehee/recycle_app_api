@@ -3,7 +3,7 @@ from . import models
 
 
 @admin.register(models.Challenge)
-class RecycleAdmin(admin.ModelAdmin):
+class ChallengeAdmin(admin.ModelAdmin):
 
     list_display = (
         "title",
@@ -18,7 +18,14 @@ class RecycleAdmin(admin.ModelAdmin):
         "count_members",
     )
     def count_members(self, obj):
-        return obj.members.all().count()
+        return obj.member.all().count()
     
+@admin.register(models.ChallengeMember)
+class ChallengeMemberAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "challenge_name",
+        "member",
+    )
    
     

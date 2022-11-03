@@ -52,11 +52,14 @@ class Challenge(Core):
         blank=True
     )
     certification_notice = models.TextField(blank=True)
-    member = models.ManyToManyField("users.Profile", related_name="member")
+    member = models.ManyToManyField("users.User", related_name="member",blank=True)
 
     def __str__(self):
         return self.title
 
+class ChallengeMember(models.Model):
+    challenge_name = models.ForeignKey("Challenge", on_delete=models.CASCADE)
+    member = models.ForeignKey("users.User", on_delete=models.CASCADE)
     
 class ChallengeReview(models.Model):
     rating = models.IntegerField(null=True)
