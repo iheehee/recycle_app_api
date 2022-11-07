@@ -1,5 +1,6 @@
 from distutils import text_file
 from django.db import models
+from django.core.validators import MaxValueValidator
 from core.models import Core
 
 
@@ -27,12 +28,14 @@ class Challenge(Core):
         ("8week", "8주 동안"),
     )
 
-    title = models.CharField(max_length=140, default="")
-    owner = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name="challenge_owner")
-    title_banner = models.ImageField(upload_to="title_banner", default="",blank=True)
+    title = models.CharField(max_length=140, default="", blank=True)
+    owner = models.ForeignKey(
+        "users.User", on_delete=models.CASCADE, related_name="owner", null=True
+    )
+    title_banner = models.ImageField(upload_to="title_banner", default="", blank=True, null=True)
     challenge_summery = models.CharField(max_length=255, blank=True)
     challenge_description = models.TextField(blank=True)
-    start_day = models.DateTimeField()
+    start_day = models.DateTimeField(null=True)
     frequency = models.CharField(max_length=50, choices=FREQUENCY, default="")
     duration = models.CharField(max_length=50, choices=DURATIONS, null=True)
     certification_success_photo_example = models.ImageField(
@@ -41,7 +44,8 @@ class Challenge(Core):
         height_field=None,
         width_field=None,
         max_length=None,
-        blank=True
+        blank=True,
+        null=True
     )
     certification_fail_photo_example = models.ImageField(
         verbose_name="fail photo",
@@ -49,20 +53,28 @@ class Challenge(Core):
         height_field=None,
         width_field=None,
         max_length=None,
-        blank=True
+        blank=True,
+        null=True
     )
     certification_notice = models.TextField(blank=True)
-    member = models.ManyToManyField("users.User", related_name="member",blank=True)
+    max_member = models.IntegerField(default=1, validators=[MaxValueValidator(20)])
+    member = models.ManyToManyField("users.User", blank=True, related_name="member")
+   
+    def number_of_member(self):
+        member = self.member.count()
+        return member
 
     def __str__(self):
         return self.title
 
-class ChallengeMember(models.Model):
-    challenge_name = models.ForeignKey("Challenge", on_delete=models.CASCADE)
-    member = models.ForeignKey("users.User", on_delete=models.CASCADE)
-    
+
+
 class ChallengeReview(models.Model):
     rating = models.IntegerField(null=True)
     comment = models.CharField(max_length=100, default="")
-    challenge = models.OneToOneField("Challenge", verbose_name="review", on_delete=models.CASCADE, related_name="review")
-
+    challenge = models.OneToOneField(
+        "Challenge",
+        verbose_name="review",
+        on_delete=models.CASCADE,
+        related_name="review",
+    )

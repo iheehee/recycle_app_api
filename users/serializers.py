@@ -26,7 +26,7 @@ class RelatedUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (
-            "nickname",
+            "id","nickname",
         )
 
 class UserRegisterSerializer(serializers.ModelSerializer):

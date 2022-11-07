@@ -63,8 +63,4 @@ class UserViewSet(ModelViewSet):
         """프로필 수정"""
         return super().update(request, *args, **kwargs)
 
-    #@action(detail=True, method=["post"])
-    #def regist_challenges(self, request, *args, **kwargs):
-    #    pk = 
-
 
