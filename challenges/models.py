@@ -1,4 +1,5 @@
 from distutils import text_file
+import re
 from django.db import models
 from django.core.validators import MaxValueValidator
 from core.models import Core
@@ -32,7 +33,9 @@ class Challenge(Core):
     owner = models.ForeignKey(
         "users.User", on_delete=models.CASCADE, related_name="owner", null=True
     )
-    title_banner = models.ImageField(upload_to="title_banner", default="", blank=True, null=True)
+    title_banner = models.ImageField(
+        upload_to="title_banner", default="", blank=True, null=True
+    )
     challenge_summery = models.CharField(max_length=255, blank=True)
     challenge_description = models.TextField(blank=True)
     start_day = models.DateTimeField(null=True)
@@ -45,7 +48,7 @@ class Challenge(Core):
         width_field=None,
         max_length=None,
         blank=True,
-        null=True
+        null=True,
     )
     certification_fail_photo_example = models.ImageField(
         verbose_name="fail photo",
@@ -54,19 +57,24 @@ class Challenge(Core):
         width_field=None,
         max_length=None,
         blank=True,
-        null=True
+        null=True,
     )
     certification_notice = models.TextField(blank=True)
     max_member = models.IntegerField(default=1, validators=[MaxValueValidator(20)])
-    member = models.ManyToManyField("users.User", blank=True, related_name="member")
-   
-    def number_of_member(self):
-        member = self.member.count()
-        return member
+    # member = models.ManyToManyField("ChallengeApply", blank=True, related_name="member")
 
     def __str__(self):
         return self.title
 
+
+class ChallengeApply(models.Model):
+    challenge_name = models.ForeignKey(
+        "Challenge", verbose_name="challenge name", on_delete=models.CASCADE, related_name="challenge_name", null=True
+    )
+    member_name = models.ForeignKey(
+        "users.Profile", verbose_name="member name", on_delete=models.CASCADE, related_name="member_name", null=True
+    )
+    created = models.DateTimeField(auto_now=True)
 
 
 class ChallengeReview(models.Model):

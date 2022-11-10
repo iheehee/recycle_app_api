@@ -59,7 +59,6 @@ class LoginSerializer(serializers.Serializer):
         if not (username and password):
             raise serializers.ValidationError()
         user = authenticate(username=username, password=password)
-        print(user)
         try:
             obj["user"] = user.id
             return obj

@@ -1,4 +1,4 @@
-from .models import Challenge
+from .models import Challenge, ChallengeApply
 from users.serializers import RelatedUserSerializer
 from rest_framework import serializers
 
@@ -23,7 +23,7 @@ class ChallengeSerializer(serializers.ModelSerializer):
             "certification_fail_photo_example",
             "certification_notice",
             "max_member",
-            "member",
+            
         )
         read_only_fields = ("id",)
 
@@ -47,16 +47,16 @@ class ChallengeCreateSerializer(serializers.ModelSerializer):
             "certification_fail_photo_example",
             "certification_notice",
             "max_member",
-            "member",
+            
         )
     
 
-class ChallengeMemberSerializer(serializers.ModelSerializer):
+class ChallengeApplySerializer(serializers.ModelSerializer):
     class Meta:
-        model = Challenge
+        model = ChallengeApply
         fields = (
             "id",
             "challenge_name",
-            "member",
+            "member_name",
         )
         read_only_fields = ("id",)

@@ -15,11 +15,17 @@ class ChallengeAdmin(admin.ModelAdmin):
         "certification_success_photo_example",
         "certification_fail_photo_example",
         "certification_notice",
-        "number_of_member",
     )
-    #def count_members(self, obj):
-    #    return obj.member.all().count()
-    
 
-   
-    
+
+@admin.register(models.ChallengeApply)
+class ChallengeApplyAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "challenge_name",
+        "member_name",
+        "created",
+    )
+
+    # def count_members(self, obj):
+    #    return obj.member.all().count()
