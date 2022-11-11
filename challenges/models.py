@@ -75,7 +75,8 @@ class ChallengeApply(models.Model):
         "users.Profile", verbose_name="member name", on_delete=models.CASCADE, related_name="member_name", null=True
     )
     created = models.DateTimeField(auto_now=True)
-
+    def __str__(self):
+        return str(self.challenge_name)
 
 class ChallengeReview(models.Model):
     rating = models.IntegerField(null=True)
