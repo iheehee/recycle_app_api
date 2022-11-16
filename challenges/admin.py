@@ -22,8 +22,8 @@ class ChallengeAdmin(admin.ModelAdmin):
 class ChallengeApplyAdmin(admin.ModelAdmin):
 
     list_display = (
-        "challenge_name",
-        "member_name",
+        "challenge_id",
+        "member_id",
         "created",
     )
 

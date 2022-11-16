@@ -61,22 +61,23 @@ class Challenge(Core):
     )
     certification_notice = models.TextField(blank=True)
     max_member = models.IntegerField(default=1, validators=[MaxValueValidator(20)])
-    # member = models.ManyToManyField("ChallengeApply", blank=True, related_name="member")
+    number_of_applied_member = models.PositiveIntegerField(default=1)
 
     def __str__(self):
         return self.title
 
 
 class ChallengeApply(models.Model):
-    challenge_name = models.ForeignKey(
+    challenge_id = models.ForeignKey(
         "Challenge", verbose_name="challenge name", on_delete=models.CASCADE, related_name="challenge_name", null=True
     )
-    member_name = models.ForeignKey(
+    member_id = models.ForeignKey(
         "users.Profile", verbose_name="member name", on_delete=models.CASCADE, related_name="member_name", null=True
     )
     created = models.DateTimeField(auto_now=True)
+
     def __str__(self):
-        return str(self.challenge_name)
+        return str(self.challenge_id)
 
 class ChallengeReview(models.Model):
     rating = models.IntegerField(null=True)

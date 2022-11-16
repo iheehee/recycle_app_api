@@ -19,7 +19,6 @@ class ChallengeViewSet(ModelViewSet):
     serializer_class = ChallengeSerializer
 
     def get_serializer_class(self):
-        print(self.action)
         if self.action == "list":
             return ChallengeSerializer
         if self.action == "retrieve":
@@ -30,9 +29,6 @@ class ChallengeViewSet(ModelViewSet):
             return ChallengeCreateSerializer
         if self.action == "delete":
             return ChallengeCreateSerializer
-        if self.action == "challenge_apply":
-            return ChallengeApplySerializer
-
         return super().get_serializer_class()
 
     def get_permissions(self):
@@ -41,7 +37,7 @@ class ChallengeViewSet(ModelViewSet):
             return [AllowAny()]
         if self.action in ["regist_member"]:
             return [IsAuthenticated()]
-        if self.action in ["update", "destroy", "apply_challenge","leave_challenge"]:
+        if self.action in ["update", "destroy", "apply_challenge", "leave_challenge"]:
             return [AllowAny()]
 
         return super().get_permissions()
@@ -61,13 +57,14 @@ class ChallengeViewSet(ModelViewSet):
     @action(methods=["post"], detail=True)
     def apply_challenge(self, request, pk):
         """챌린지 멤버 등록"""
-        challenge = self.get_object()
         profile = Profile.objects.get(nickname=request.user)
-        applied_challenge = ChallengeApply.objects.filter(
-            challenge_name__exact=challenge.pk
-        )
-        if challenge.max_member > applied_challenge.count():
-            ChallengeApply.objects.create(challenge_name=challenge, member_name=profile)
+        """트랜젝션으로 묶는다"""
+        challenge_query = Challenge.objects.filter(id__exact=self.get_object().pk)
+        challenge = challenge_query[0]
+        if challenge.max_member > challenge.number_of_applied_member:
+            ChallengeApply.objects.create(challenge_id=challenge, member_id=profile)
+            number_of_applied_member_count_up = challenge.number_of_applied_member + 1
+            challenge_query.update(number_of_applied_member=number_of_applied_member_count_up)
             return Response(
                 data={"result": "챌린지에 등록되었습니다."}, status=status.HTTP_201_CREATED
             )
@@ -77,13 +74,13 @@ class ChallengeViewSet(ModelViewSet):
     @action(methods=["delete"], detail=True)
     def leave_challenge(self, request, pk):
         """챌린지 탈퇴"""
-        challenge = self.get_object()
         profile = Profile.objects.get(nickname=request.user)
-        applied_challenge = ChallengeApply.objects.filter(member_name__exact=profile.pk)
-        #my_challenge_name = applied_challenge
-        for challenge in applied_challenge :
-            if challenge in applied_challenge:
-                ChallengeApply.objects.delete(challenge_name=challenge, member_name=profile)
-                return Response(data={"result": "챌린지를 탈퇴했습니다."})
-            else :
-                return Response(data={"result": "참여하지 않은 챌린지 입니다."})
+        challenge_query = Challenge.objects.filter(id__exact=self.get_object().pk)
+        challenge = challenge_query[0]
+        ChallengeApply.objects.filter(challenge_id__exact=challenge, member_id__exact=profile).delete()
+        number_of_applied_member_count_down = challenge.number_of_applied_member - 1
+        challenge_query.update(number_of_applied_member=number_of_applied_member_count_down)
+        return Response(data={"result": "챌린지를 탈퇴했습니다."})
+    
+
+        

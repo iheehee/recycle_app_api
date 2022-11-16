@@ -23,6 +23,7 @@ class ChallengeSerializer(serializers.ModelSerializer):
             "certification_fail_photo_example",
             "certification_notice",
             "max_member",
+            "number_of_applied_member",
             
         )
         read_only_fields = ("id",)

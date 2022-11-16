@@ -64,3 +64,4 @@ class UserViewSet(ModelViewSet):
         return super().update(request, *args, **kwargs)
 
 
+#class ChallengeCertificationViewSet(ModelViewSet):
