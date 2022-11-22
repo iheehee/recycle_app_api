@@ -1,11 +1,9 @@
 from .models import Challenge, ChallengeApply
-from users.serializers import RelatedUserSerializer
+#from users.serializers import RelatedUserSerializer
 from rest_framework import serializers
 
 
 class ChallengeSerializer(serializers.ModelSerializer):
-
-    owner = RelatedUserSerializer()
 
     class Meta:
         model = Challenge

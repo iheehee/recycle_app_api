@@ -55,10 +55,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class Profile(models.Model):
+    nickname_id = models.ForeignKey("User", on_delete=models.CASCADE, default="")
     avatar = models.FileField(upload_to="avatar", blank=True, default="")
-    #has_challenge = models.ManyToManyField("challenges.ChallengeApply", blank=True, default="")
-    nickname = models.ForeignKey("User", on_delete=models.CASCADE, default="")
 
     def __str__(self):
-        return str(self.nickname)
+        return str(self.nickname_id)
 

@@ -63,6 +63,7 @@ class Challenge(Core):
     max_member = models.IntegerField(default=1, validators=[MaxValueValidator(20)])
     number_of_applied_member = models.PositiveIntegerField(default=1)
 
+
     def __str__(self):
         return self.title
 
@@ -78,6 +79,8 @@ class ChallengeApply(models.Model):
 
     def __str__(self):
         return str(self.challenge_id)
+
+
 
 class ChallengeReview(models.Model):
     rating = models.IntegerField(null=True)

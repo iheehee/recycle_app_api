@@ -7,8 +7,16 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticated
 from rest_framework import status
 from .permissions import IsSelf
-from .serializers import LoginSerializer, UserSerializer, UserRegisterSerializer, ProfileUpdateSerializer
+from .serializers import (
+    LoginSerializer,
+    UserSerializer,
+    UserRegisterSerializer,
+    UserInfoUpdateSerializer,
+    ProfileSerializer
+)
 from .models import User
+from challenges.models import ChallengeApply, Challenge
+from challenges.serializers import ChallengeSerializer
 
 
 class UserViewSet(ModelViewSet):
@@ -26,7 +34,7 @@ class UserViewSet(ModelViewSet):
         if self.action == "create":
             return UserRegisterSerializer
         if self.action == "partial_update":
-            return ProfileUpdateSerializer
+            return UserInfoUpdateSerializer
 
         return super().get_serializer_class()
 
@@ -56,12 +64,28 @@ class UserViewSet(ModelViewSet):
         if user is not None:
             encoded_jwt = jwt.encode({"user": user}, "secret", algorithm="HS256")
             return Response(data=encoded_jwt)
-        else :
-            return Response(data={"아이디와 비빌번호를 다시 확인해주세요."}, status=status.HTTP_401_UNAUTHORIZED)
-    
+        else:
+            return Response(
+                data={"아이디와 비빌번호를 다시 확인해주세요."}, status=status.HTTP_401_UNAUTHORIZED
+            )
+
     def partial_update(self, request, *args, **kwargs):
-        """프로필 수정"""
+        """유저정보 수정"""
         return super().update(request, *args, **kwargs)
 
+    #@action(detail=True, methods=["get"])
+    #def profile(self, request. pk):
+    #    """프로필 조회"""
 
-#class ChallengeCertificationViewSet(ModelViewSet):
+    @action(detail=True, methods=["get"])
+    def my_challenge(self, request, pk):
+        user = request.user
+        my_challenge = ChallengeApply.objects.select_related('challenge_id')
+        for s in my_challenge:
+            print(s.challenge_id.owner)
+        serialiezer = ChallengeSerializer(my_challenge).data
+        
+        print(serialiezer)
+
+
+
