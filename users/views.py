@@ -40,7 +40,7 @@ class UserViewSet(ModelViewSet):
 
     def get_permissions(self):
 
-        if self.action in ["list", "create", "login", "retrieve"]:
+        if self.action in ["list", "create", "login", "retrieve", "my_challenge"]:
             return [AllowAny()]
         if self.action in ["update"]:
             return [IsSelf()]
@@ -80,12 +80,13 @@ class UserViewSet(ModelViewSet):
     @action(detail=True, methods=["get"])
     def my_challenge(self, request, pk):
         user = request.user
-        my_challenge = ChallengeApply.objects.select_related('challenge_id')
-        for s in my_challenge:
-            print(s.challenge_id.owner)
-        serialiezer = ChallengeSerializer(my_challenge).data
-        
-        print(serialiezer)
+        my_challenge = ChallengeApply.objects.filter(member_id__exact=user.pk).select_related('challenge_id')
+        my_challenge_info = [challenge.challenge_id for challenge in my_challenge ]
+        my_challenge_list = []
+        for s in my_challenge_info:
+            serializer = ChallengeSerializer(s).data
+            my_challenge_list.append(serializer)
+        return Response(data=my_challenge_list)
 
 
 

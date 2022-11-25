@@ -80,6 +80,11 @@ class ChallengeApply(models.Model):
     def __str__(self):
         return str(self.challenge_id)
 
+class ChallengeCertification(models.Model):
+    applied_challenge_id = models.ForeignKey("ChallengeApply", on_delete=models.CASCADE)
+    certification_date = models.DateTimeField()
+    certification_photo = models.FileField(upload_to="certification", blank=True, default="")
+    
 
 
 class ChallengeReview(models.Model):
