@@ -59,7 +59,6 @@ class LoginSerializer(serializers.Serializer):
 
     email = serializers.EmailField()
     password = serializers.CharField()
-    # email = serializers.EmailField()
 
     def validate(self, obj):
         username = obj.get("email")

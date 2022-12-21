@@ -8,25 +8,21 @@ from core.models import Core
 class Challenge(Core):
 
     FREQUENCY = (
-        ("1time", "주 1회"),
-        ("2times", "주 2회"),
-        ("3times", "주 3회"),
-        ("4times", "주 4회"),
-        ("5times", "주 5회"),
-        ("6times", "주 6회"),
-        ("7times", "매일"),
-        ("weekday", "평일 매일"),
-        ("weekend", "주말"),
+        ("1time", 1),
+        ("2times", 2),
+        ("3times", 3),
+        ("4times", 4),
+        ("5times", 5),
+        ("6times", 6),
+        ("7times", 7),
+        ("weekday", 5),
+        ("weekend", 2),
     )
     DURATIONS = (
-        ("1week", "1주 동안"),
-        ("2weeks", "2주 동안"),
-        ("3week", "3주 동안"),
-        ("4week", "4주 동안"),
-        ("5week", "5주 동안"),
-        ("6week", "6주 동안"),
-        ("7week", "7주 동안"),
-        ("8week", "8주 동안"),
+        ("1week", 1),
+        ("2weeks", 2),
+        ("3weeks", 3),
+        ("4weeks", 4),
     )
 
     title = models.CharField(max_length=140, default="", blank=True)
@@ -63,28 +59,38 @@ class Challenge(Core):
     max_member = models.IntegerField(default=1, validators=[MaxValueValidator(20)])
     number_of_applied_member = models.PositiveIntegerField(default=1)
 
-
     def __str__(self):
         return self.title
 
 
 class ChallengeApply(models.Model):
     challenge_id = models.ForeignKey(
-        "Challenge", verbose_name="challenge name", on_delete=models.CASCADE, related_name="challenge_name", null=True
+        "Challenge",
+        verbose_name="challenge name",
+        on_delete=models.CASCADE,
+        related_name="challenge_name",
+        null=True,
     )
     member_id = models.ForeignKey(
-        "users.Profile", verbose_name="member name", on_delete=models.CASCADE, related_name="member_name", null=True
+        "users.Profile",
+        verbose_name="member name",
+        on_delete=models.CASCADE,
+        related_name="member_name",
+        null=True,
     )
     created = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return str(self.challenge_id)
 
+
 class ChallengeCertification(models.Model):
-    applied_challenge_id = models.ForeignKey("ChallengeApply", on_delete=models.CASCADE)
-    certification_date = models.DateTimeField()
-    certification_photo = models.FileField(upload_to="certification", blank=True, default="")
-    
+    challenge_id = models.ForeignKey("Challenge", on_delete=models.CASCADE)
+    certification_date = models.DateTimeField(auto_now=True)
+    certification_photo = models.FileField(
+        upload_to="certification", blank=True, default=""
+    )
+    certification_comment = models.CharField(max_length=255, blank=True)
 
 
 class ChallengeReview(models.Model):
