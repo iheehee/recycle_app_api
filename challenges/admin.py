@@ -27,5 +27,14 @@ class ChallengeApplyAdmin(admin.ModelAdmin):
         "created",
     )
 
-    # def count_members(self, obj):
-    #    return obj.member.all().count()
+
+@admin.register(models.ChallengeCertification)
+class ChallengeCertificationAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "challenge_id",
+        "challenge_Participant_id",
+        "certification_date",
+        "certification_photo",
+        "certification_comment",
+    )

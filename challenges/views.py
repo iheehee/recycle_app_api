@@ -11,7 +11,7 @@ from .serializers import (
 )
 from .models import Challenge, ChallengeApply, ChallengeCertification
 from users.models import User, Profile
-
+from datetime import datetime, timedelta 
 
 class ChallengeViewSet(ModelViewSet):
 
@@ -97,7 +97,15 @@ class ChallengeViewSet(ModelViewSet):
         query = Challenge.objects.filter(id__exact=self.get_object().pk)[0]
         frequency = query.get_frequency_display()
         durations = query.get_duration_display()
-        total = frequency * durations
-        return Response(total)
-        # frequency = query.frequency
-        # print(frequency)
+        date = query.start_day
+        #total = frequency * durations
+        time = date + timedelta(days=6, hours=23, minutes=59, seconds=59)
+        success_certification = ChallengeCertification.objects.filter(certification_date__range=[date, time], )
+        if len(success_certification) <= frequency :
+            serializer = ChallengeCertificationSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+        else :
+            return Response(data={"result" : "이번주 인증은 모두 완료했습니다."})        
+        return Response(date={"인증 성공"})
+

@@ -1,4 +1,4 @@
-from .models import Challenge, ChallengeApply
+from .models import Challenge, ChallengeApply, ChallengeCertification
 
 # from users.serializers import RelatedUserSerializer
 from rest_framework import serializers
@@ -58,14 +58,16 @@ class ChallengeApplySerializer(serializers.ModelSerializer):
 
 
 class ChallengeCertificationSerializer(serializers.ModelSerializer):
-    
     class Meta:
-        model = Challenge
+        model = ChallengeCertification
         fields = (
-            "id",
-            "title",
-            "title_banner",
-            "start_day",
-            "frequency",
-            "duration",
+            "challenge_id",
+            "challenge_Participant_id",
+            "certification_date",
+            "certification_photo",
+            "certification_comment",
         )
+
+    def create(self, validated_data):
+        certification = ChallengeCertification.objects.create(**validated_data)
+        return certification

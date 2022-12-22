@@ -85,7 +85,10 @@ class ChallengeApply(models.Model):
 
 
 class ChallengeCertification(models.Model):
-    challenge_id = models.ForeignKey("Challenge", on_delete=models.CASCADE)
+    challenge_id = models.ForeignKey("Challenge", on_delete=models.CASCADE, related_name="challenge_certification_name")
+    challenge_Participant_id = models.ForeignKey(
+        "users.Profile", on_delete=models.CASCADE, default=""
+    ,related_name="participant")
     certification_date = models.DateTimeField(auto_now=True)
     certification_photo = models.FileField(
         upload_to="certification", blank=True, default=""
