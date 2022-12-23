@@ -62,7 +62,7 @@ class ChallengeCertificationSerializer(serializers.ModelSerializer):
         model = ChallengeCertification
         fields = (
             "challenge_id",
-            "challenge_Participant_id",
+            "challenge_participant_id",
             "certification_date",
             "certification_photo",
             "certification_comment",

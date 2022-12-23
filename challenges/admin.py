@@ -33,7 +33,7 @@ class ChallengeCertificationAdmin(admin.ModelAdmin):
 
     list_display = (
         "challenge_id",
-        "challenge_Participant_id",
+        "challenge_participant_id",
         "certification_date",
         "certification_photo",
         "certification_comment",

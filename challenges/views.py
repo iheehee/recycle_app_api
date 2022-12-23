@@ -11,7 +11,8 @@ from .serializers import (
 )
 from .models import Challenge, ChallengeApply, ChallengeCertification
 from users.models import User, Profile
-from datetime import datetime, timedelta 
+from datetime import timedelta, datetime
+
 
 class ChallengeViewSet(ModelViewSet):
 
@@ -97,15 +98,27 @@ class ChallengeViewSet(ModelViewSet):
         query = Challenge.objects.filter(id__exact=self.get_object().pk)[0]
         frequency = query.get_frequency_display()
         durations = query.get_duration_display()
-        date = query.start_day
-        #total = frequency * durations
-        time = date + timedelta(days=6, hours=23, minutes=59, seconds=59)
-        success_certification = ChallengeCertification.objects.filter(certification_date__range=[date, time], )
-        if len(success_certification) <= frequency :
-            serializer = ChallengeCertificationSerializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-        else :
-            return Response(data={"result" : "이번주 인증은 모두 완료했습니다."})        
-        return Response(date={"인증 성공"})
+        # total = frequency * durations
+        profile = Profile.objects.get(nickname_id=request.user)
+        start_day = query.start_day
+        end_day = start_day + timedelta(days=7)  # , hours=23, minutes=59, seconds=59
 
+        def certification_feed_save(success_certification):
+            if len(success_certification) <= frequency:
+                serializer = ChallengeCertificationSerializer(data=request.data)
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+            else:
+                return Response(data={"result": "이번주 인증은 모두 완료했습니다."})
+            return Response(data={"인증 성공"})
+
+        for i in range(durations + 1):
+            if datetime.now() < end_day:
+                success_certification = ChallengeCertification.objects.filter(
+                    certification_date__range=[start_day, end_day],
+                    challenge_participant_id__exact=profile,
+                )
+                certification_feed_save(success_certification)
+            elif datetime.now() > end_day:
+                start_day = start_day + timedelta(days=7)
+                end_day = start_day + timedelta(days=7)
