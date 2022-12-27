@@ -13,12 +13,14 @@ from .models import Challenge, ChallengeApply, ChallengeCertification
 from users.models import User, Profile
 from datetime import timedelta, datetime
 from pytz import timezone
+from .rree import query, test_qeurys
 
 
 class ChallengeViewSet(ModelViewSet):
 
     queryset = Challenge.objects.all()
     serializer_class = ChallengeSerializer
+    
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -61,14 +63,15 @@ class ChallengeViewSet(ModelViewSet):
     @action(methods=["post"], detail=True)
     def apply_challenge(self, request, pk):
         """챌린지 멤버 등록"""
-        profile = Profile.objects.get(nickname=request.user)
+        print(query(request.user))
+        print(test_qeurys(self.get_object().pk))
+        profile = Profile.objects.get(nickname_id=request.user)
         """트랜젝션으로 묶는다"""
-        challenge_query = Challenge.objects.filter(id__exact=self.get_object().pk)
-        challenge = challenge_query[0]
+        challenge = Challenge.objects.filter(id__exact=self.get_object().pk)[0]
         if challenge.max_member > challenge.number_of_applied_member:
             ChallengeApply.objects.create(challenge_id=challenge, member_id=profile)
             number_of_applied_member_count_up = challenge.number_of_applied_member + 1
-            challenge_query.update(
+            Challenge.objects.update(
                 number_of_applied_member=number_of_applied_member_count_up
             )
             #  커밋하기전 다시한번 challenge.number_of_applied_member 체크
@@ -82,40 +85,43 @@ class ChallengeViewSet(ModelViewSet):
     @action(methods=["delete"], detail=True)
     def leave_challenge(self, request, pk):
         """챌린지 탈퇴"""
-        profile = Profile.objects.get(nickname=request.user)
-        challenge_query = Challenge.objects.filter(id__exact=self.get_object().pk)
-        challenge = challenge_query[0]
+        profile = Profile.objects.get(nickname_id=request.user)
+        challenge = Challenge.objects.filter(id__exact=self.get_object().pk)[0]
         ChallengeApply.objects.filter(
             challenge_id__exact=challenge, member_id__exact=profile
         ).delete()
         number_of_applied_member_count_down = challenge.number_of_applied_member - 1
-        challenge_query.update(
+        Challenge.objects.update(
             number_of_applied_member=number_of_applied_member_count_down
         )
         return Response(data={"result": "챌린지를 탈퇴했습니다."})
 
-
-
     @action(methods=["get"], detail=True)
     def certification_status(self, request, pk):
+        challenge = Challenge.objects.filter(id__exact=self.get_object().pk)[0]
         profile = Profile.objects.get(nickname_id=request.user)
-        challenge = Challenge.objects.filter(id__exact=self.get_object().pk)
         success_certification_search_query = ChallengeCertification.objects.filter(
-                    challenge_id__exact=challenge,
-                    challenge_participant_id__exact=profile,
-                )
+            challenge_id__exact=challenge,
+            challenge_participant_id__exact=profile,
+        )
         success_number = len(success_certification_search_query)
-        frequency = query.get_frequency_display()
-        durations = query.get_duration_display()
+        frequency = challenge.get_frequency_display()
+        durations = challenge.get_duration_display()
         total = frequency * durations
-        achievement_rate = success_number/total
-        
+        achievement_rate = round(success_number / total * 100)
+        return Response(
+            data={
+                "achievement_rate": achievement_rate,
+                "success_number": success_number,
+            }
+        )
 
     @action(methods=["post"], detail=True)
     def certification(self, request, pk):
-        frequency = query.get_frequency_display()
-        durations = query.get_duration_display()
+        challenge = Challenge.objects.filter(id__exact=self.get_object().pk)[0]
         profile = Profile.objects.get(nickname_id=request.user)
+        frequency = challenge.get_frequency_display()
+        durations = challenge.get_duration_display()
 
         def certification_feed_save(success_certification):
             if len(success_certification) < frequency:
@@ -127,12 +133,9 @@ class ChallengeViewSet(ModelViewSet):
             return Response(data={"인증 성공"})
 
         system_currnet_time = datetime.now().replace(tzinfo=timezone("Asia/Seoul"))
-        start_day = query.start_day
+        start_day = challenge.start_day
         end_day = start_day + timedelta(days=7)
         for _ in range(durations + 1):
-            print(start_day)
-            print(end_day)
-            print(system_currnet_time)
             if system_currnet_time < end_day:
                 success_certification = ChallengeCertification.objects.filter(
                     certification_date__range=[start_day, end_day],
@@ -142,4 +145,3 @@ class ChallengeViewSet(ModelViewSet):
                 start_day = start_day + timedelta(days=7)
                 end_day = start_day + timedelta(days=7)
         return certification_feed_save(success_certification)
-        

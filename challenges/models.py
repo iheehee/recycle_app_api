@@ -78,6 +78,7 @@ class ChallengeApply(models.Model):
         related_name="member_name",
         null=True,
     )
+    
     created = models.DateTimeField(auto_now=True)
 
     def __str__(self):
