@@ -1,8 +1,8 @@
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticated
 from rest_framework import status
+from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticated
 from .permissions import IsSelf
 from .serializers import (
     ChallengeSerializer,
@@ -13,14 +13,13 @@ from .models import Challenge, ChallengeApply, ChallengeCertification
 from users.models import User, Profile
 from datetime import timedelta, datetime
 from pytz import timezone
-from .rree import query, test_qeurys
+from .query import profile, challenge
 
 
 class ChallengeViewSet(ModelViewSet):
 
     queryset = Challenge.objects.all()
     serializer_class = ChallengeSerializer
-    
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -63,13 +62,13 @@ class ChallengeViewSet(ModelViewSet):
     @action(methods=["post"], detail=True)
     def apply_challenge(self, request, pk):
         """챌린지 멤버 등록"""
-        print(query(request.user))
-        print(test_qeurys(self.get_object().pk))
-        profile = Profile.objects.get(nickname_id=request.user)
+
         """트랜젝션으로 묶는다"""
-        challenge = Challenge.objects.filter(id__exact=self.get_object().pk)[0]
         if challenge.max_member > challenge.number_of_applied_member:
-            ChallengeApply.objects.create(challenge_id=challenge, member_id=profile)
+            ChallengeApply.objects.create(
+                challenge_id=challenge(self.get_object().pk),
+                member_id=profile(request.user),
+            )
             number_of_applied_member_count_up = challenge.number_of_applied_member + 1
             Challenge.objects.update(
                 number_of_applied_member=number_of_applied_member_count_up
@@ -109,10 +108,37 @@ class ChallengeViewSet(ModelViewSet):
         durations = challenge.get_duration_display()
         total = frequency * durations
         achievement_rate = round(success_number / total * 100)
+        system_currnet_time = datetime.now().replace(tzinfo=timezone("Asia/Seoul"))
+        start_day = challenge.start_day
+        end_day = start_day + timedelta(days=7)
+        fail_number = 0
+        for _ in range(durations):
+            if system_currnet_time < end_day:
+                success_certification = ChallengeCertification.objects.filter(
+                    certification_date__range=[start_day, end_day],
+                    challenge_participant_id__exact=profile,
+                )
+                fail_number = frequency - len(success_certification)
+    
+            elif system_currnet_time > end_day:
+                start_day = start_day + timedelta(days=7)
+                end_day = start_day + timedelta(days=7)
+                success_certification = ChallengeCertification.objects.filter(
+                    certification_date__range=[start_day, end_day],
+                    challenge_participant_id__exact=profile,
+                )
+                fail_number = frequency - len(success_certification)
+            
+            qq = Challenge.objects.get(id=1)
+            qs = self.serializer_class(qq).data 
+            #self.serializer_class(self.queryset.filter(id__exact=challenge.pk)).data
+            print(qs)
         return Response(
             data={
+                "dd": qs,
                 "achievement_rate": achievement_rate,
                 "success_number": success_number,
+                "fail_number": fail_number,
             }
         )
 
