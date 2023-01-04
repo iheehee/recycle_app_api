@@ -99,46 +99,70 @@ class ChallengeViewSet(ModelViewSet):
     def certification_status(self, request, pk):
         challenge = Challenge.objects.filter(id__exact=self.get_object().pk)[0]
         profile = Profile.objects.get(nickname_id=request.user)
-        success_certification_search_query = ChallengeCertification.objects.filter(
-            challenge_id__exact=challenge,
-            challenge_participant_id__exact=profile,
-        )
-        success_number = len(success_certification_search_query)
         frequency = challenge.get_frequency_display()
         durations = challenge.get_duration_display()
-        total = frequency * durations
-        achievement_rate = round(success_number / total * 100)
-        system_currnet_time = datetime.now().replace(tzinfo=timezone("Asia/Seoul"))
-        start_day = challenge.start_day
-        end_day = start_day + timedelta(days=7)
-        fail_number = 0
-        for _ in range(durations):
-            if system_currnet_time < end_day:
-                success_certification = ChallengeCertification.objects.filter(
-                    certification_date__range=[start_day, end_day],
-                    challenge_participant_id__exact=profile,
-                )
-                fail_number = frequency - len(success_certification)
-    
-            elif system_currnet_time > end_day:
-                start_day = start_day + timedelta(days=7)
-                end_day = start_day + timedelta(days=7)
-                success_certification = ChallengeCertification.objects.filter(
-                    certification_date__range=[start_day, end_day],
-                    challenge_participant_id__exact=profile,
-                )
-                fail_number = frequency - len(success_certification)
-            
-            qq = Challenge.objects.get(id=1)
-            qs = self.serializer_class(qq).data 
-            #self.serializer_class(self.queryset.filter(id__exact=challenge.pk)).data
-            print(qs)
+
+        def success_number():
+            success_certification_search_query = ChallengeCertification.objects.filter(
+                challenge_id__exact=challenge,
+                challenge_participant_id__exact=profile,
+            )
+            success_number = len(success_certification_search_query)
+            return success_number
+
+        def achievement_rate():
+            total = frequency * durations
+            achievement_rate = round(success_number() / total * 100)
+            return achievement_rate
+
+        def fail_number():
+            fail_number = 0
+            system_currnet_time = datetime.now().replace(tzinfo=timezone("Asia/Seoul"))
+            start_day = challenge.start_day
+            end_day = start_day + timedelta(days=7)
+            for _ in range(durations):
+                if system_currnet_time < end_day:
+                    success_certification = ChallengeCertification.objects.filter(
+                        certification_date__range=[start_day, end_day],
+                        challenge_participant_id__exact=profile,
+                    )
+                    fail_number = frequency - len(success_certification)
+
+                elif system_currnet_time > end_day:
+                    start_day = start_day + timedelta(days=7)
+                    end_day = start_day + timedelta(days=7)
+                    success_certification = ChallengeCertification.objects.filter(
+                        certification_date__range=[start_day, end_day],
+                        challenge_participant_id__exact=profile,
+                    )
+                    fail_number = frequency - len(success_certification)
+
+            return fail_number
+
+        def certification_photo():
+            qs = ChallengeCertification.objects.filter(
+                challenge_participant_id__exact=profile, challenge_id__exact=challenge
+            )
+            ww = []
+            for i in qs:
+                serializer = ChallengeCertificationSerializer(i)
+                ww.append(serializer.data)
+
+            print(ww)
+            return ww
+
+        def challenge_query():
+            queryset = Challenge.objects.get(pk=challenge.pk)
+            serializer = self.serializer_class(queryset).data
+            return serializer
+
         return Response(
             data={
-                "dd": qs,
-                "achievement_rate": achievement_rate,
-                "success_number": success_number,
-                "fail_number": fail_number,
+                "challenge": challenge_query(),
+                "achievement_rate": achievement_rate(),
+                "success_number": success_number(),
+                "fail_number": fail_number(),
+                "qs": certification_photo(),
             }
         )
 

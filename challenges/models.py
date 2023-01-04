@@ -95,6 +95,7 @@ class ChallengeCertification(models.Model):
         upload_to="certification", blank=True, default=""
     )
     certification_comment = models.CharField(max_length=255, blank=True)
+    
 
 
 class ChallengeReview(models.Model):
