@@ -1,3 +1,4 @@
+import requests
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
@@ -148,16 +149,26 @@ class ChallengeViewSet(ModelViewSet):
                 serializer = ChallengeCertificationSerializer(i)
                 ww.append(serializer.data)
 
-            print(ww)
+            
             return ww
 
         def challenge_query():
             queryset = Challenge.objects.get(pk=challenge.pk)
             serializer = self.serializer_class(queryset).data
             return serializer
+        
+        def ccc():
+            key = "f79ef2eeb2b947f9bf3510e0e848a2be"
+            dd = []
+            response = requests.get(
+"https://map.seoul.go.kr/smgis/apps/theme.do?cmd=getContentsList&key=f79ef2eeb2b947f9bf3510e0e848a2be&page_size=50&page_no=1&coord_x=126.974695&coord_y=37.564150&distance=2000&search_type=0&search_name=&theme_id=11103395&content_id=&subcate_id=")
+            result=dd.append(response.json())
+            print(result)
+            return dd
 
         return Response(
             data={
+                "result": ccc(),
                 "challenge": challenge_query(),
                 "achievement_rate": achievement_rate(),
                 "success_number": success_number(),

@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "recycles.apps.RecyclesConfig",
     "users.apps.UsersConfig",
     "challenges.apps.ChallengesConfig",
+    "markets.apps.MarketsConfig",
     "rest_framework",
     "django_extensions",
 ]
@@ -108,9 +109,6 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTH_USER_MODEL = "users.User"
 
-#AUTHENTICATION_BACKENDS = (
-#    "path.to.CustomBackend",
-#)
 
 AUTHENTICATION_BACKENDS = ["users.backends.CustomUserModelBackend"]
 
