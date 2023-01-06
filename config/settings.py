@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     "recycles.apps.RecyclesConfig",
     "users.apps.UsersConfig",
     "challenges.apps.ChallengesConfig",
-    "markets.apps.MarketsConfig",
+    "maps.apps.MapsConfig",
     "rest_framework",
     "django_extensions",
 ]

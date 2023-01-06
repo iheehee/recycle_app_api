@@ -14,7 +14,7 @@ pyjwt = "*"
 django-extensions = "*"
 django-allauth = "!=0.42.0"
 pillow = "*"
-requests = "*"
+requests = 2.28.1
 
 [dev-packages]
 
