@@ -1,5 +1,3 @@
-from distutils import text_file
-import re
 from django.db import models
 from django.core.validators import MaxValueValidator
 from core.models import Core
@@ -29,9 +27,7 @@ class Challenge(Core):
     owner = models.ForeignKey(
         "users.User", on_delete=models.CASCADE, related_name="owner", null=True
     )
-    title_banner = models.ImageField(
-        upload_to="title_banner", default="", blank=True, null=True
-    )
+    title_banner = models.ImageField(upload_to="title_banner", default="", blank=True, null=True)
     challenge_summery = models.CharField(max_length=255, blank=True)
     challenge_description = models.TextField(blank=True)
     start_day = models.DateTimeField(null=True)
@@ -78,7 +74,7 @@ class ChallengeApply(models.Model):
         related_name="member_name",
         null=True,
     )
-    
+
     created = models.DateTimeField(auto_now=True)
 
     def __str__(self):
@@ -86,16 +82,15 @@ class ChallengeApply(models.Model):
 
 
 class ChallengeCertification(models.Model):
-    challenge_id = models.ForeignKey("Challenge", on_delete=models.CASCADE, related_name="challenge_certification_name")
-    challenge_participant_id = models.ForeignKey(
-        "users.Profile", on_delete=models.CASCADE, default=""
-    ,related_name="participant")
-    certification_date = models.DateTimeField(auto_now=True)
-    certification_photo = models.FileField(
-        upload_to="certification", blank=True, default=""
+    challenge_id = models.ForeignKey(
+        "Challenge", on_delete=models.CASCADE, related_name="challenge_certification_name"
     )
+    challenge_participant_id = models.ForeignKey(
+        "users.Profile", on_delete=models.CASCADE, default="", related_name="participant"
+    )
+    certification_date = models.DateTimeField(auto_now=True)
+    certification_photo = models.FileField(upload_to="certification", blank=True, default="")
     certification_comment = models.CharField(max_length=255, blank=True)
-    
 
 
 class ChallengeReview(models.Model):

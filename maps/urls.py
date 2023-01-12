@@ -3,6 +3,6 @@ from . import views
 
 app_name = "maps"
 
-urlpatterns = [path("", views.SearchShop.as_view()),
+urlpatterns = [
+    path("update", views.MapUpdate.as_view()),
 ]
-
