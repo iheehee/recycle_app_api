@@ -12,7 +12,8 @@ class ShopAdmin(admin.ModelAdmin):
         "lat",
         "lng",
         "image",
-        # "category_id",
+        "category_id",
+        "borough_id",
     )
 
 
@@ -22,6 +23,15 @@ class CategoryAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "category",
+    )
+
+
+@admin.register(models.Borough)
+class BoroughAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "id",
+        "borough",
     )
 
 

@@ -1,7 +1,8 @@
 import requests
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import Shop
+from django.db import IntegrityError
+from .models import Category, Shop, Borough
 
 
 class MapUpdate(APIView):
@@ -15,21 +16,37 @@ class MapUpdate(APIView):
             return save_map_data(results)
 
         def save_map_data(results):
-            lists = results["body"]
-            maps_kwards = {}
-            for i in range(len(lists)):
-                maps_kwards["name"] = lists[i]["COT_CONTS_NAME"]
-                maps_kwards["address"] = lists[i]["COT_ADDR_FULL_NEW"]
-                maps_kwards["tel"] = lists[i]["COT_TEL_NO"]
-                maps_kwards["lat"] = lists[i]["COT_COORD_Y"]
-                maps_kwards["lng"] = lists[i]["COT_COORD_X"]
-                maps_kwards["image"] = lists[i]["COT_IMG_MAIN_URL"]
-                maps_kwards["category_id"] = lists[i]["COT_THEME_SUB_ID"]
+            api_result = results["body"]
+            borough_all = Borough.objects.all()
+            shop_kwards = {}
 
-            """try:
-                Shops.objects.create(**maps_kwards)
-            except:
-                pass"""
-            return maps_kwards
+            for i in range(len(api_result)):
+                shop_kwards["name"] = api_result[i]["COT_CONTS_NAME"]
+                shop_kwards["address"] = api_result[i]["COT_ADDR_FULL_NEW"]
+                shop_kwards["tel"] = api_result[i]["COT_TEL_NO"]
+                shop_kwards["lat"] = api_result[i]["COT_COORD_Y"]
+                shop_kwards["lng"] = api_result[i]["COT_COORD_X"]
+                shop_kwards["image"] = api_result[i]["COT_IMG_MAIN_URL"]
+
+                def fk_add_category(i):
+                    category_id = api_result[i]["COT_THEME_SUB_ID"]
+                    category = Category.objects.filter(id__exact=category_id)[0]
+                    return category
+
+                def fk_add_borough():
+                    address = shop_kwards["address"]
+
+                    for i in borough_all:
+                        if str(i) in address:
+                            return i
+
+                try:
+                    Shop.objects.create(
+                        **shop_kwards, category_id=fk_add_category(i), borough_id=fk_add_borough()
+                    )
+                except IntegrityError:
+                    pass
+
+            return shop_kwards
 
         return Response(data=map_request())
