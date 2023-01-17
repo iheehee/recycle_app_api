@@ -3,15 +3,24 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
-from rest_framework import status
+from rest_framework import status, mixins
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticated
 from django.db import IntegrityError
 from .models import Category, Shop, Borough
+from .serializers import ShopSerializer
+
+
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = "page_size"
+    max_page_size = 1000
 
 
 class MapViewSet(ModelViewSet):
     queryset = Shop.objects.all()
     serializer_class = ShopSerializer
+    pagination_class = StandardResultsSetPagination
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -24,12 +33,43 @@ class MapViewSet(ModelViewSet):
 
         if self.action in ["list", "retrieve"]:
             return [AllowAny()]
-        if self.action in ["regist_member"]:
-            return [IsAuthenticated()]
         return super().get_permissions()
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data, content={"성공입니다."})
+
+    def list(self, request, *args, **kwargs):
+        queryset = Shop.objects.all()
+        shop_queryset = self.filter_queryset(queryset)
+        borough_queryset = Borough.objects.all()
+        category_queryset = Category.objects.all()
+        page = self.paginate_queryset(shop_queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(shop_queryset, many=True)
+        return Response(
+            data={
+                "shop": serializer.data,
+                "borough": borough_queryset,
+                "category": category_queryset,
+            }
+        )
 
 
 class MapUpdate(APIView):
+
+    permission_classes = [AllowAny]
+
     def get(self, request):
         def update_map():
             key = "f79ef2eeb2b947f9bf3510e0e848a2be"
