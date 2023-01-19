@@ -17,59 +17,50 @@ class StandardResultsSetPagination(PageNumberPagination):
     max_page_size = 1000
 
     def get_paginated_response(self, data):
-        return Response(
-            {
-                "links": {"next": self.get_next_link(), "previous": self.get_previous_link()},
-                "count": self.page.paginator.count,
-                "results": data,
-            }
-        )
+        results = {
+            "links": {"next": self.get_next_link(), "previous": self.get_previous_link()},
+            "count": self.page.paginator.count,
+            "results": data,
+        }
+
+        return results
 
 
-class MapViewSet(generics.ListAPIView):
+class MapViewSet(ModelViewSet):
     queryset = Shop.objects.all()
     serializer_class = ShopSerializer
     pagination_class = StandardResultsSetPagination
 
     def list(self, request, *args, **kwargs):
-        # shop_queryset = self.filter_queryset(queryset)
         shop_queryset = Shop.objects.all()
         borough_queryset = Borough.objects.all()
         category_queryset = Category.objects.all()
 
-        serializer = ShopSerializer(shop_queryset, many=True)
-        page = self.paginate_queryset(shop_queryset)
-        paginated_data = self.get_serializer(page, many=True)
+        def paginated_list(queryset):
+            page = self.paginate_queryset(queryset)
+            paginated_data = self.get_serializer(page, many=True).data
+            paginated_response = self.get_paginated_response(data=paginated_data)
+            return paginated_response
 
-        def b(queryset):
-            bb = [queryset[i].borough for i in range(len(borough_queryset))]
-            return bb
-
-        print(paginated_data)
-        """if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-        serializer = self.get_serializer(shop_queryset, many=True)"""
+        def orderly_list(queryset):
+            list = []
+            for i in range(len(queryset)):
+                if queryset == borough_queryset:
+                    list.append(queryset[i].borough)
+                elif queryset == category_queryset:
+                    list.append(queryset[i].category)
+            return list
 
         return Response(
-            data={"borough": b(queryset=borough_queryset), "shop": paginated_data.data}
-            # "shop": serializer.data,
-            # "category": category_queryset,
+            data={
+                "borough": orderly_list(borough_queryset),
+                "category": orderly_list(category_queryset),
+                "shop": paginated_list(shop_queryset),
+            }
         )
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
-
-    """def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data, content={"성공입니다."})"""
 
 
 class MapUpdate(APIView):
