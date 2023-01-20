@@ -31,6 +31,12 @@ class MapViewSet(ModelViewSet):
     serializer_class = ShopSerializer
     pagination_class = StandardResultsSetPagination
 
+    def get_permissions(self):
+        if self.action in ["list", "create", "retrieve"]:
+            return [AllowAny()]
+
+        return super().get_permissions()
+
     def list(self, request, *args, **kwargs):
         shop_queryset = Shop.objects.all()
         borough_queryset = Borough.objects.all()
@@ -55,9 +61,30 @@ class MapViewSet(ModelViewSet):
             data={
                 "borough": orderly_list(borough_queryset),
                 "category": orderly_list(category_queryset),
-                "shop": paginated_list(shop_queryset),
+                "shop": paginated_list(queryset=shop_queryset),
             }
         )
+
+    def search(self, request, *args, **kwargs):
+        name = request.GET.get("name", None)
+        borough = request.GET.get("borough", None)
+        category = request.GET.get("category", None)
+
+        filter_kwargs = {}
+        if name is not None:
+            filter_kwargs["name"] = name
+        if borough is not None:
+            filter_kwargs["borough"] = borough
+        if category is not None:
+            filter_kwargs["category"] = category
+
+        try:
+            rooms = Room.objects.filter(**filter_kwargs)
+        except ValueError:
+            rooms = Room.objects.all()
+        results = paginator.paginate_queryset(rooms, request)
+        serializer = RoomSerializer(results, many=True)
+        return Response(paginator.get_paginated_response(serializer.data))
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
@@ -74,49 +101,47 @@ class MapUpdate(APIView):
                 f"https://map.seoul.go.kr/smgis/apps/theme.do?cmd=getContentsList&key={key}&page_size=999&page_no=1&coord_x=126.974695&coord_y=37.564150&distance=100000&search_type=0&search_name=&theme_id=11103395&content_id=&subcate_id="
             )
             results = response.json()
+            return save_map_data(results)
+
+        def save_map_data(results):
+            api_result = results["body"]
+            borough_all = Borough.objects.all()
+            shop_kwards = {}
             update_count = 0
+            for i in range(len(api_result)):
+                """부정확한 데이터(카페)를 제외하고 저장"""
+                if api_result[i]["COT_THEME_SUB_ID"] != str(1):
 
-            def save_map_data(results):
-                api_result = results["body"]
-                borough_all = Borough.objects.all()
-                shop_kwards = {}
+                    shop_kwards["name"] = api_result[i]["COT_CONTS_NAME"]
+                    shop_kwards["address"] = api_result[i]["COT_ADDR_FULL_NEW"]
+                    shop_kwards["tel"] = api_result[i]["COT_TEL_NO"]
+                    shop_kwards["lat"] = api_result[i]["COT_COORD_Y"]
+                    shop_kwards["lng"] = api_result[i]["COT_COORD_X"]
+                    shop_kwards["image"] = api_result[i]["COT_IMG_MAIN_URL"]
 
-                for i in range(len(api_result)):
-                    """부정확한 데이터(카페)를 제외하고 저장"""
-                    if api_result[i]["COT_THEME_SUB_ID"] != str(1):
+                    def fk_add_category(i):
+                        category_id = api_result[i]["COT_THEME_SUB_ID"]
+                        category = Category.objects.filter(id__exact=category_id)[0]
+                        return category
 
-                        shop_kwards["name"] = api_result[i]["COT_CONTS_NAME"]
-                        shop_kwards["address"] = api_result[i]["COT_ADDR_FULL_NEW"]
-                        shop_kwards["tel"] = api_result[i]["COT_TEL_NO"]
-                        shop_kwards["lat"] = api_result[i]["COT_COORD_Y"]
-                        shop_kwards["lng"] = api_result[i]["COT_COORD_X"]
-                        shop_kwards["image"] = api_result[i]["COT_IMG_MAIN_URL"]
+                    def fk_add_borough():
+                        address = shop_kwards["address"]
+                        for i in borough_all:
+                            if str(i) in address:
+                                return i
 
-                        def fk_add_category(i):
-                            category_id = api_result[i]["COT_THEME_SUB_ID"]
-                            category = Category.objects.filter(id__exact=category_id)[0]
-                            return category
-
-                        def fk_add_borough():
-                            address = shop_kwards["address"]
-
-                            for i in borough_all:
-                                if str(i) in address:
-                                    return i
-
-                        try:
-                            Shop.objects.create(
-                                **shop_kwards,
-                                category_id=fk_add_category(i),
-                                borough_id=fk_add_borough(),
-                            )
-                            return update_count + 1
-
-                        except IntegrityError:
-                            pass
-
-                return save_map_data(results)
+                    print(shop_kwards)
+                    try:
+                        Shop.objects.create(
+                            **shop_kwards,
+                            category_id=fk_add_category(i),
+                            borough_id=fk_add_borough(),
+                        )
+                        update_count += 1
+                    except IntegrityError:
+                        update_count += 0
 
             return update_count
+            # return save_map_data(results)
 
         return Response(data={"update_count": update_map()})
