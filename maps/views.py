@@ -32,7 +32,7 @@ class MapViewSet(ModelViewSet):
     pagination_class = StandardResultsSetPagination
 
     def get_permissions(self):
-        if self.action in ["list", "create", "retrieve"]:
+        if self.action in ["list", "create", "retrieve", "search"]:
             return [AllowAny()]
 
         return super().get_permissions()
@@ -65,7 +65,8 @@ class MapViewSet(ModelViewSet):
             }
         )
 
-    def search(self, request, *args, **kwargs):
+    @action(methods=["get"], detail=False)
+    def search(self, request):
         name = request.GET.get("name", None)
         borough = request.GET.get("borough", None)
         category = request.GET.get("category", None)
@@ -79,15 +80,13 @@ class MapViewSet(ModelViewSet):
             filter_kwargs["category"] = category
 
         try:
-            rooms = Room.objects.filter(**filter_kwargs)
-        except ValueError:
-            rooms = Room.objects.all()
-        results = paginator.paginate_queryset(rooms, request)
-        serializer = RoomSerializer(results, many=True)
-        return Response(paginator.get_paginated_response(serializer.data))
+            shops = Shop.objects.filter(borough_id__borough=borough, category_id__category=category)
 
-    def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
+        except ValueError:
+            shops = Shop.objects.all()
+        # results = paginator.paginate_queryset(rooms, request)
+        serializer = ShopSerializer(shops, many=True)
+        return Response(data=serializer.data)
 
 
 class MapUpdate(APIView):
