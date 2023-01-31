@@ -7,6 +7,7 @@ from rest_framework import status, generics
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticated
 from django.db import IntegrityError
+from django.db.models import Q
 from .models import Category, Shop, Borough
 from .serializers import ShopSerializer
 
@@ -71,16 +72,23 @@ class MapViewSet(ModelViewSet):
         borough = request.GET.get("borough", None)
         category = request.GET.get("category", None)
 
-        filter_kwargs = {}
-        if name is not None:
-            filter_kwargs["name"] = name
-        if borough is not None:
-            filter_kwargs["borough"] = borough
-        if category is not None:
-            filter_kwargs["category"] = category
-
         try:
-            shops = Shop.objects.filter(borough_id__borough=borough, category_id__category=category)
+            """filter_kwargs = {}
+            if name is not None:
+                filter_kwargs["name"] = name
+            if borough is not None:
+                filter_kwargs["borough"] = borough
+            if category is not None:
+                filter_kwargs["category"] = category
+            shops = Shop.objects.filter(**filter_kwargs)"""
+
+            # shops = Shop.objects.filter(
+            #    name__icontains=name, borough_id=borough, category_id=category
+            # )
+            if borough is not None:
+                shops = Shop.objects.filter(
+                    Q(name__icontains=name) & Q(borough_id=borough) & Q(category_id=category)
+                )
 
         except ValueError:
             shops = Shop.objects.all()
