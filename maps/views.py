@@ -73,22 +73,14 @@ class MapViewSet(ModelViewSet):
         category = request.GET.get("category", None)
 
         try:
-            """filter_kwargs = {}
+            q = Q()
             if name is not None:
-                filter_kwargs["name"] = name
+                q.add(Q(name__icontains=name), q.AND)
             if borough is not None:
-                filter_kwargs["borough"] = borough
+                q.add(Q(borough_id=borough), q.AND)
             if category is not None:
-                filter_kwargs["category"] = category
-            shops = Shop.objects.filter(**filter_kwargs)"""
-
-            # shops = Shop.objects.filter(
-            #    name__icontains=name, borough_id=borough, category_id=category
-            # )
-            if borough is not None:
-                shops = Shop.objects.filter(
-                    Q(name__icontains=name) & Q(borough_id=borough) & Q(category_id=category)
-                )
+                q.add(Q(category_id=category), q.AND)
+            shops = Shop.objects.filter(q)
 
         except ValueError:
             shops = Shop.objects.all()
