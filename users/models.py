@@ -42,9 +42,9 @@ class User(AbstractBaseUser, PermissionsMixin):
         unique=True,
     )
     nickname = models.CharField(max_length=20, null=False, unique=True)
-    is_active = models.BooleanField(default=True)
     is_superuser = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
     date_joined = models.DateTimeField(auto_now_add=True)
 
     USERNAME_FIELD = "email"
@@ -60,4 +60,3 @@ class Profile(models.Model):
 
     def __str__(self):
         return str(self.nickname_id)
-

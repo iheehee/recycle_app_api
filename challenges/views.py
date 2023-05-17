@@ -13,7 +13,8 @@ from .models import Challenge, ChallengeApply, ChallengeCertification
 from users.models import User, Profile
 from datetime import timedelta, datetime
 from pytz import timezone
-from .query import profile, challenge
+from .query import profile
+import jwt
 
 
 class ChallengeViewSet(ModelViewSet):
@@ -62,22 +63,20 @@ class ChallengeViewSet(ModelViewSet):
     @action(methods=["post"], detail=True)
     def apply_challenge(self, request, pk):
         """챌린지 멤버 등록"""
-
+        challenge = Challenge.objects.filter(id__exact=self.get_object().pk)[0]
+        token = jwt.encode({"id": "eee@gmailcom"}, "secret", algorithm="HS256")
+        aa = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImVlZUBnbWFpbGNvbSJ9.iV2i3r3DGuNVdwUjJozcVqppxXXpUotC7VYEE8IliD8"
+        decode_token = jwt.decode(aa, "secret", algorithms="HS256")
+        print(decode_token)
+        profile = Profile.objects.get(nickname_id=request.user)
         """트랜젝션으로 묶는다"""
-        if challenge.max_member > challenge.number_of_applied_member:
-            ChallengeApply.objects.create(
-                challenge_id=challenge(self.get_object().pk),
-                member_id=profile(request.user),
-            )
+        if challenge.number_of_applied_member < challenge.max_member:
+            ChallengeApply.objects.create(challenge_id=challenge, member_id=profile)
             number_of_applied_member_count_up = challenge.number_of_applied_member + 1
-            Challenge.objects.update(
-                number_of_applied_member=number_of_applied_member_count_up
-            )
+            Challenge.objects.update(number_of_applied_member=number_of_applied_member_count_up)
             #  커밋하기전 다시한번 challenge.number_of_applied_member 체크
             # 오버되면 커밋하지않고 롤백
-            return Response(
-                data={"result": "챌린지에 등록되었습니다."}, status=status.HTTP_201_CREATED
-            )
+            return Response(data={"result": "챌린지에 등록되었습니다."}, status=status.HTTP_201_CREATED)
         else:
             return Response(data={"result": "인원이 다 찼습니다."})
 
@@ -90,9 +89,7 @@ class ChallengeViewSet(ModelViewSet):
             challenge_id__exact=challenge, member_id__exact=profile
         ).delete()
         number_of_applied_member_count_down = challenge.number_of_applied_member - 1
-        Challenge.objects.update(
-            number_of_applied_member=number_of_applied_member_count_down
-        )
+        Challenge.objects.update(number_of_applied_member=number_of_applied_member_count_down)
         return Response(data={"result": "챌린지를 탈퇴했습니다."})
 
     @action(methods=["get"], detail=True)
@@ -108,7 +105,7 @@ class ChallengeViewSet(ModelViewSet):
                 challenge_participant_id__exact=profile.pk,
             )
             success_number = len(success_certification_search_query)
-            
+
             return success_number
 
         def achievement_rate():

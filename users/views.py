@@ -12,7 +12,7 @@ from .serializers import (
     UserSerializer,
     UserRegisterSerializer,
     UserInfoUpdateSerializer,
-    ProfileSerializer
+    ProfileSerializer,
 )
 from .models import User
 from challenges.models import ChallengeApply, Challenge
@@ -62,32 +62,28 @@ class UserViewSet(ModelViewSet):
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data["user"]
         if user is not None:
-            encoded_jwt = jwt.encode({"user": user}, "secret", algorithm="HS256")
-            return Response(data=encoded_jwt)
+            encoded_jwt = jwt.encode({"pk": user}, "secret", algorithm="HS256")
+            return Response(data={"token": encoded_jwt, "id": user})
         else:
-            return Response(
-                data={"아이디와 비빌번호를 다시 확인해주세요."}, status=status.HTTP_401_UNAUTHORIZED
-            )
+            return Response(data={"아이디와 비빌번호를 다시 확인해주세요."}, status=status.HTTP_401_UNAUTHORIZED)
 
     def partial_update(self, request, *args, **kwargs):
         """유저정보 수정"""
         return super().update(request, *args, **kwargs)
 
-    #@action(detail=True, methods=["get"])
-    #def profile(self, request. pk):
+    # @action(detail=True, methods=["get"])
+    # def profile(self, request. pk):
     #    """프로필 조회"""
 
     @action(detail=True, methods=["get"])
     def my_challenge(self, request, pk):
         user = request.user
-        my_challenge = ChallengeApply.objects.filter(member_id__exact=user.pk).select_related('challenge_id')
-        my_challenge_info = [challenge.challenge_id for challenge in my_challenge ]
+        my_challenge = ChallengeApply.objects.filter(member_id__exact=user.pk).select_related(
+            "challenge_id"
+        )
+        my_challenge_info = [challenge.challenge_id for challenge in my_challenge]
         my_challenge_list = []
         for s in my_challenge_info:
             serializer = ChallengeSerializer(s).data
             my_challenge_list.append(serializer)
         return Response(data=my_challenge_list)
-
-    
-
-

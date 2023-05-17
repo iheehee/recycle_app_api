@@ -6,21 +6,21 @@ from core.models import Core
 class Challenge(Core):
 
     FREQUENCY = (
-        ("1time", 1),
-        ("2times", 2),
-        ("3times", 3),
-        ("4times", 4),
-        ("5times", 5),
-        ("6times", 6),
-        ("7times", 7),
-        ("weekday", 5),
-        ("weekend", 2),
+        ("주 1일", 1),
+        ("주 2일", 2),
+        ("주 3일", 3),
+        ("주 4일", 4),
+        ("주 5일", 5),
+        ("주 6일", 6),
+        ("주 7일", 7),
+        ("평일 매일", 8),
+        ("주말 매일", 9),
     )
     DURATIONS = (
-        ("1week", 1),
-        ("2weeks", 2),
-        ("3weeks", 3),
-        ("4weeks", 4),
+        ("1주 동안", 1),
+        ("2주 동안", 2),
+        ("3주 동안", 3),
+        ("4주 동안", 4),
     )
 
     title = models.CharField(max_length=140, default="", blank=True)
@@ -96,9 +96,8 @@ class ChallengeCertification(models.Model):
 class ChallengeReview(models.Model):
     rating = models.IntegerField(null=True)
     comment = models.CharField(max_length=100, default="")
-    challenge = models.OneToOneField(
+    challenge = models.ManyToManyField(
         "Challenge",
         verbose_name="review",
-        on_delete=models.CASCADE,
         related_name="review",
     )

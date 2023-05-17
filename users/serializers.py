@@ -47,7 +47,14 @@ class UserRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         field = ("password", "email")
-        exclude = ("username", "is_superuser", "is_staff", "groups", "user_permissions")
+        exclude = (
+            "username",
+            "is_superuser",
+            "is_staff",
+            "groups",
+            "user_permissions",
+            "is_active",
+        )
 
     def create(self, validated_data):
         user = User.objects.create(**validated_data, is_active=False)
@@ -77,9 +84,7 @@ class LoginSerializer(serializers.Serializer):
 class UserInfoUpdateSerializer(serializers.ModelSerializer):
     """회원정보 수정"""
 
-    nickname = serializers.CharField(
-        validators=[UniqueValidator(queryset=User.objects.all())]
-    )
+    nickname = serializers.CharField(validators=[UniqueValidator(queryset=User.objects.all())])
 
     class Meta:
         model = User
@@ -105,8 +110,8 @@ class UserInfoUpdateSerializer(serializers.ModelSerializer):
 
 class ProfileSerializer(serializers.ModelSerializer):
 
-#    my_challenges = ChallengeApplySerializer(many=True)    
-    
+    #    my_challenges = ChallengeApplySerializer(many=True)
+
     class Meta:
         model = Profile
         field = (
@@ -117,4 +122,3 @@ class ProfileSerializer(serializers.ModelSerializer):
 
         read_only_fields = ("id",)
         exclude = ()
-        
