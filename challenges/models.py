@@ -4,7 +4,6 @@ from core.models import Core
 
 
 class Challenge(Core):
-
     FREQUENCY = (
         ("주 1일", 1),
         ("주 2일", 2),
@@ -83,10 +82,15 @@ class ChallengeApply(models.Model):
 
 class ChallengeCertification(models.Model):
     challenge_id = models.ForeignKey(
-        "Challenge", on_delete=models.CASCADE, related_name="challenge_certification_name"
+        "Challenge",
+        on_delete=models.CASCADE,
+        related_name="challenge_certification_name",
     )
     challenge_participant_id = models.ForeignKey(
-        "users.Profile", on_delete=models.CASCADE, default="", related_name="participant"
+        "users.Profile",
+        on_delete=models.CASCADE,
+        default="",
+        related_name="participant",
     )
     certification_date = models.DateTimeField(auto_now=True)
     certification_photo = models.FileField(upload_to="certification", blank=True, default="")

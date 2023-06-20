@@ -3,6 +3,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 from rest_framework import status
 from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticated
+from core.authentication import JWTAuthentication
 from .permissions import IsSelf
 from .serializers import (
     ChallengeSerializer,
@@ -15,10 +16,10 @@ from datetime import timedelta, datetime
 from pytz import timezone
 from .query import profile
 import jwt
+from django.conf import settings
 
 
 class ChallengeViewSet(ModelViewSet):
-
     queryset = Challenge.objects.all()
     serializer_class = ChallengeSerializer
 
@@ -38,7 +39,6 @@ class ChallengeViewSet(ModelViewSet):
         return super().get_serializer_class()
 
     def get_permissions(self):
-
         if self.action in ["list", "create", "retrieve", "member", "certification"]:
             return [AllowAny()]
         if self.action in ["regist_member"]:
@@ -64,11 +64,8 @@ class ChallengeViewSet(ModelViewSet):
     def apply_challenge(self, request, pk):
         """챌린지 멤버 등록"""
         challenge = Challenge.objects.filter(id__exact=self.get_object().pk)[0]
-        token = jwt.encode({"id": "eee@gmailcom"}, "secret", algorithm="HS256")
-        aa = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImVlZUBnbWFpbGNvbSJ9.iV2i3r3DGuNVdwUjJozcVqppxXXpUotC7VYEE8IliD8"
-        decode_token = jwt.decode(aa, "secret", algorithms="HS256")
-        print(decode_token)
-        profile = Profile.objects.get(nickname_id=request.user)
+        decoded = JWTAuthentication.authenticate(self, request)
+        profile = Profile.objects.get(nickname_id=decoded)
         """트랜젝션으로 묶는다"""
         if challenge.number_of_applied_member < challenge.max_member:
             ChallengeApply.objects.create(challenge_id=challenge, member_id=profile)
