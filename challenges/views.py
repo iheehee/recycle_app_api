@@ -9,6 +9,7 @@ from .serializers import (
     ChallengeSerializer,
     ChallengeCreateSerializer,
     ChallengeCertificationSerializer,
+    CertificationExampleSerializer,
 )
 from .models import Challenge, ChallengeApply, ChallengeCertification
 from users.models import User, Profile
@@ -39,7 +40,14 @@ class ChallengeViewSet(ModelViewSet):
         return super().get_serializer_class()
 
     def get_permissions(self):
-        if self.action in ["list", "create", "retrieve", "member", "certification"]:
+        if self.action in [
+            "list",
+            "create",
+            "retrieve",
+            "member",
+            "certification",
+            "certification_status",
+        ]:
             return [AllowAny()]
         if self.action in ["regist_member"]:
             return [IsAuthenticated()]

@@ -32,30 +32,35 @@ class Challenge(Core):
     start_day = models.DateTimeField(null=True)
     frequency = models.CharField(max_length=50, choices=FREQUENCY, default="")
     duration = models.CharField(max_length=50, choices=DURATIONS, null=True)
-    certification_success_photo_example = models.ImageField(
-        verbose_name="success photo",
-        upload_to="success_photo_ex",
-        height_field=None,
-        width_field=None,
-        max_length=None,
-        blank=True,
-        null=True,
-    )
-    certification_fail_photo_example = models.ImageField(
-        verbose_name="fail photo",
-        upload_to="success_fail_ex",
-        height_field=None,
-        width_field=None,
-        max_length=None,
-        blank=True,
-        null=True,
-    )
     certification_notice = models.TextField(blank=True)
+    certification_photo_example = models.ManyToManyField(
+        "CertificationExample", related_name="CertificationExample"
+    )
     max_member = models.IntegerField(default=1, validators=[MaxValueValidator(20)])
     number_of_applied_member = models.PositiveIntegerField(default=1)
 
     def __str__(self):
         return self.title
+
+
+class CertificationExample(models.Model):
+    name = models.ForeignKey(
+        "Challenge",
+        verbose_name="challenge name",
+        on_delete=models.CASCADE,
+        related_name="challenge",
+        null=True,
+    )
+    certification_photo_example = models.ImageField(
+        verbose_name="certi photo",
+        upload_to="certi_photo_ex",
+        height_field=None,
+        width_field=None,
+        max_length=None,
+        blank=True,
+        null=True,
+    )
+    SuccessOrFail = models.BooleanField(null=True)
 
 
 class ChallengeApply(models.Model):
