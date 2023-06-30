@@ -73,10 +73,10 @@ class ChallengeViewSet(ModelViewSet):
         """챌린지 멤버 등록"""
         challenge = Challenge.objects.filter(id__exact=self.get_object().pk)[0]
         decoded = JWTAuthentication.authenticate(self, request)
-        profile = Profile.objects.get(nickname_id=decoded)
+        user = User.objects.get(id=decoded.id)
         """트랜젝션으로 묶는다"""
         if challenge.number_of_applied_member < challenge.max_member:
-            ChallengeApply.objects.create(challenge_id=challenge, member_id=profile)
+            challenge.member.add(user)
             number_of_applied_member_count_up = challenge.number_of_applied_member + 1
             Challenge.objects.update(number_of_applied_member=number_of_applied_member_count_up)
             #  커밋하기전 다시한번 challenge.number_of_applied_member 체크

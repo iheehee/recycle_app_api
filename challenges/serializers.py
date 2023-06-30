@@ -32,6 +32,7 @@ class ChallengeSerializer(serializers.ModelSerializer):
             "duration",
             "certification_photo_example",
             "certification_notice",
+            "member",
             "max_member",
             "number_of_applied_member",
         )
