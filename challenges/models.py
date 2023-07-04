@@ -36,7 +36,11 @@ class Challenge(Core):
     certification_photo_example = models.ManyToManyField(
         "CertificationExample", related_name="CertificationExample"
     )
-    member = models.ManyToManyField("users.User", related_name="challenges", null=True)
+    member = models.ManyToManyField(
+        "users.User",
+        related_name="challenges",
+        through="ChallengeApply",
+    )
     max_member = models.IntegerField(default=1, validators=[MaxValueValidator(20)])
     number_of_applied_member = models.PositiveIntegerField(default=1)
 

@@ -1,14 +1,17 @@
 from django.contrib import admin
-#from django.contrib.auth.admin import UserAdmin
+
+# from django.contrib.auth.admin import UserAdmin
 from . import models
 
 
 @admin.register(models.User)
 class UserAdmin(admin.ModelAdmin):
+    list_display = (
+        "nickname",
+        "email",
+    )
 
-    list_display = ("nickname", "email", )
 
 @admin.register(models.Profile)
 class ProfileAdmin(admin.ModelAdmin):
-
-    list_display = ("nickname_id", "avatar", )
+    list_display = ("nickname_id", "avatar")

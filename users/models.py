@@ -4,10 +4,10 @@ from django.contrib.auth.models import (
     BaseUserManager,
     PermissionsMixin,
 )
+from challenges.models import ChallengeApply
 
 
 class CustomUserManager(BaseUserManager):
-
     use_in_migrations = True
 
     def create_user(self, email, nickname, password=None):
@@ -33,7 +33,6 @@ class CustomUserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-
     objects = CustomUserManager()
 
     username = models.CharField(max_length=128, null=True)
@@ -57,6 +56,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 class Profile(models.Model):
     nickname_id = models.ForeignKey("User", on_delete=models.CASCADE, default="")
     avatar = models.FileField(upload_to="avatar", blank=True, default="")
+    my_challenges = models.ManyToManyField(
+        "challenges.Challenge", through="challenges.ChallengeApply"
+    )
 
     def __str__(self):
         return str(self.nickname_id)
