@@ -87,3 +87,5 @@ class UserViewSet(ModelViewSet):
             serializer = ChallengeSerializer(s).data
             my_challenge_list.append(serializer)
         return Response(data=my_challenge_list)
+
+class UserViewSet(ModelViewSet):

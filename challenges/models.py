@@ -37,7 +37,7 @@ class Challenge(Core):
         "CertificationExample", related_name="CertificationExample"
     )
     member = models.ManyToManyField(
-        "users.User",
+        "users.Profile",
         related_name="challenges",
         through="ChallengeApply",
     )
@@ -97,7 +97,7 @@ class ChallengeCertification(models.Model):
         related_name="challenge_certification_name",
     )
     challenge_participant_id = models.ForeignKey(
-        "users.Profile",
+        "users.User",
         on_delete=models.CASCADE,
         default="",
         related_name="participant",

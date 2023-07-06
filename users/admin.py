@@ -14,4 +14,4 @@ class UserAdmin(admin.ModelAdmin):
 
 @admin.register(models.Profile)
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ("nickname_id", "avatar")
+    list_display = ("id", "nickname_id", "avatar")

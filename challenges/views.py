@@ -71,17 +71,20 @@ class ChallengeViewSet(ModelViewSet):
     @action(methods=["post"], detail=True)
     def apply_challenge(self, request, pk):
         """챌린지 멤버 등록"""
-        challenge = Challenge.objects.filter(id__exact=self.get_object().pk)[0]
+        challenge = Challenge.objects.get(id=self.get_object().pk)
         decoded = JWTAuthentication.authenticate(self, request)
         user = User.objects.get(id=decoded.id)
-        profile = Profile.objects.get(nickname_id=user.id)
-        print(challenge)
+        profile = Profile.objects.filter(nickname_id=user)[0]
+        print(profile.id)
+
         """트랜젝션으로 묶는다"""
         if challenge.number_of_applied_member < challenge.max_member:
-            challenge.member.add(user)
-            profile.my_challenges.add(challenge)
-            number_of_applied_member_count_up = challenge.number_of_applied_member + 1
-            Challenge.objects.update(number_of_applied_member=number_of_applied_member_count_up)
+            ChallengeApply.objects.create(challenge_id=challenge, member_id=profile)
+            """challenge.member.add(profile)
+            profile.my_challenges.add(challenge)"""
+            # number_of_applied_member_count_up = challenge.number_of_applied_member + 1
+            challenge.number_of_applied_member += 1
+            challenge.save()
             #  커밋하기전 다시한번 challenge.number_of_applied_member 체크
             # 오버되면 커밋하지않고 롤백
             return Response(data={"result": "챌린지에 등록되었습니다."}, status=status.HTTP_201_CREATED)

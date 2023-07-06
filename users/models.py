@@ -40,7 +40,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         max_length=255,
         unique=True,
     )
-    nickname = models.CharField(max_length=20, null=False, unique=True)
+    nickname = models.CharField(max_length=20, null=False, default="")
     is_superuser = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
