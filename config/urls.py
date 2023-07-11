@@ -5,8 +5,8 @@ from django.urls import path, include
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("recycles/", include("recycles.urls")),
-    path("users/", include("users.urls")),
     path("challenges/", include("challenges.urls")),
+    path("users/", include("users.urls")),
+    path("recycles/", include("recycles.urls")),
     path("maps/", include("maps.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

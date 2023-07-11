@@ -2,6 +2,7 @@ from urllib import request
 import jwt
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticated
@@ -14,13 +15,13 @@ from .serializers import (
     UserInfoUpdateSerializer,
     ProfileSerializer,
 )
-from .models import User
+from .models import User, Profile
 from challenges.models import ChallengeApply, Challenge
 from challenges.serializers import ChallengeSerializer
+from rest_framework.renderers import JSONRenderer
 
 
 class UserViewSet(ModelViewSet):
-
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
@@ -39,7 +40,6 @@ class UserViewSet(ModelViewSet):
         return super().get_serializer_class()
 
     def get_permissions(self):
-
         if self.action in ["list", "create", "login", "retrieve", "my_challenge"]:
             return [AllowAny()]
         if self.action in ["update"]:
@@ -72,20 +72,10 @@ class UserViewSet(ModelViewSet):
         return super().update(request, *args, **kwargs)
 
     # @action(detail=True, methods=["get"])
-    # def profile(self, request. pk):
-    #    """프로필 조회"""
 
-    @action(detail=True, methods=["get"])
-    def my_challenge(self, request, pk):
-        user = request.user
-        my_challenge = ChallengeApply.objects.filter(member_id__exact=user.pk).select_related(
-            "challenge_id"
-        )
-        my_challenge_info = [challenge.challenge_id for challenge in my_challenge]
-        my_challenge_list = []
-        for s in my_challenge_info:
-            serializer = ChallengeSerializer(s).data
-            my_challenge_list.append(serializer)
-        return Response(data=my_challenge_list)
 
-class UserViewSet(ModelViewSet):
+class ProfileView(APIView):
+    def get(self, request, pk):
+        profile = Profile.objects.filter(nickname_id__exact=pk)[0]
+        serializer = ProfileSerializer(profile)
+        return Response(serializer.data)

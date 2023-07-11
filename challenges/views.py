@@ -75,7 +75,6 @@ class ChallengeViewSet(ModelViewSet):
         decoded = JWTAuthentication.authenticate(self, request)
         user = User.objects.get(id=decoded.id)
         profile = Profile.objects.filter(nickname_id=user)[0]
-        print(profile.id)
 
         """트랜젝션으로 묶는다"""
         if challenge.number_of_applied_member < challenge.max_member:

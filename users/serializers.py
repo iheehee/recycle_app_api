@@ -27,7 +27,6 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class RelatedUserSerializer(serializers.ModelSerializer):
-
     nickname = serializers.CharField()
 
     class Meta:
@@ -109,16 +108,6 @@ class UserInfoUpdateSerializer(serializers.ModelSerializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-
-    #    my_challenges = ChallengeApplySerializer(many=True)
-
     class Meta:
         model = Profile
-        field = (
-            "nickname",
-            "avatar",
-            "my_challenges",
-        )
-
-        read_only_fields = ("id",)
-        exclude = ()
+        fields = ["nickname_id", "avatar", "my_challenges"]
