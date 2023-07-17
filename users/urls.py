@@ -8,6 +8,6 @@ router.register("", UserViewSet)
 
 
 urlpatterns = [
-    path("<int:pk>/profile", ProfileView.as_view()),
+    path("profile/", ProfileView.as_view()),
 ]
 urlpatterns += router.urls

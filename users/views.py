@@ -18,7 +18,7 @@ from .serializers import (
 from .models import User, Profile
 from challenges.models import ChallengeApply, Challenge
 from challenges.serializers import ChallengeSerializer
-from rest_framework.renderers import JSONRenderer
+from core.authentication import JWTAuthentication
 
 
 class UserViewSet(ModelViewSet):
@@ -75,7 +75,11 @@ class UserViewSet(ModelViewSet):
 
 
 class ProfileView(APIView):
-    def get(self, request, pk):
-        profile = Profile.objects.filter(nickname_id__exact=pk)[0]
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        """토큰 디코드"""
+        decoded = JWTAuthentication.authenticate(self, request)
+        profile = Profile.objects.filter(nickname_id__exact=decoded.id)[0]
         serializer = ProfileSerializer(profile)
         return Response(serializer.data)
