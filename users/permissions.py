@@ -1,7 +1,11 @@
 from rest_framework import permissions
+from core.authentication import JWTAuthentication
 
-class IsSelf(permissions.BasePermission):
-    
-    def has_object_permission(self, request, view, user):
-   
-        return user == request.user
+
+class IsAuth(permissions.BasePermission):
+    def has_permission(self, request, view):
+        decoded = JWTAuthentication.authenticate(self, request)
+        if decoded:
+            return True
+        else:
+            return False

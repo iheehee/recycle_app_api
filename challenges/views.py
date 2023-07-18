@@ -4,7 +4,7 @@ from rest_framework.decorators import action
 from rest_framework import status
 from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticated
 from core.authentication import JWTAuthentication
-from .permissions import IsSelf
+from .permissions import IsAuth
 from .serializers import (
     ChallengeSerializer,
     ChallengeCreateSerializer,
@@ -15,8 +15,6 @@ from .models import Challenge, ChallengeApply, ChallengeCertification
 from users.models import User, Profile
 from datetime import timedelta, datetime
 from pytz import timezone
-from .query import profile
-import jwt
 from django.conf import settings
 
 

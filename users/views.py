@@ -7,7 +7,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticated
 from rest_framework import status
-from .permissions import IsSelf
+from .permissions import IsAuth
 from .serializers import (
     LoginSerializer,
     UserSerializer,
@@ -43,7 +43,7 @@ class UserViewSet(ModelViewSet):
         if self.action in ["list", "create", "login", "retrieve", "my_challenge"]:
             return [AllowAny()]
         if self.action in ["update"]:
-            return [IsSelf()]
+            return [IsAuth()]
 
         return super().get_permissions()
 
@@ -75,10 +75,20 @@ class UserViewSet(ModelViewSet):
 
 
 class ProfileView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuth]
+
+    """프로필 조회"""
+
+    def get_object(self, token_decoded):
+        try:
+            token_decoded = JWTAuthentication.authenticate(request)
+            user_id = Profile.objects.filter(nickname_id__exact=token_decoded.id)[0]
+            self.check_object_permissions(self.request, user_id)
+            return user_id
+        except:
+            return None
 
     def post(self, request):
-        """토큰 디코드"""
         decoded = JWTAuthentication.authenticate(self, request)
         profile = Profile.objects.filter(nickname_id__exact=decoded.id)[0]
         serializer = ProfileSerializer(profile)
