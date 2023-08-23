@@ -92,7 +92,7 @@ class ChallengeApply(models.Model):
 
 class ChallengeCertification(models.Model):
     challenge_id = models.ForeignKey(
-        "Challenge",
+        "ChallengeApply",
         on_delete=models.CASCADE,
         related_name="challenge_certification_name",
     )

@@ -79,15 +79,6 @@ class ProfileView(APIView):
 
     """프로필 조회"""
 
-    def get_object(self, token_decoded):
-        try:
-            token_decoded = JWTAuthentication.authenticate(request)
-            user_id = Profile.objects.filter(nickname_id__exact=token_decoded.id)[0]
-            self.check_object_permissions(self.request, user_id)
-            return user_id
-        except:
-            return None
-
     def post(self, request):
         decoded = JWTAuthentication.authenticate(self, request)
         profile = Profile.objects.filter(nickname_id__exact=decoded.id)[0]

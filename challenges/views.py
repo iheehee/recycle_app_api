@@ -172,12 +172,31 @@ class ChallengeViewSet(ModelViewSet):
             }
         )
 
-    @action(methods=["post"], detail=True)
+    @action(methods=["post", "get"], detail=True)
     def certification(self, request, pk):
-        challenge = Challenge.objects.filter(id__exact=self.get_object().pk)[0]
-        profile = Profile.objects.get(nickname_id=request.user)
-        frequency = challenge.get_frequency_display()
-        durations = challenge.get_duration_display()
+        if request.method == "POST":
+            decoded = JWTAuthentication.authenticate(self, request)
+            challenge = ChallengeApply.objects.filter(challenge_id=self.get_object().pk)[0]
+            user = User.objects.get(id=decoded.id)
+            image = request.data.get("file", default=None)
+            ChallengeCertification.objects.create(
+                challenge_id=challenge,
+                challenge_participant_id=user,
+                certification_photo=image,
+            )
+            # frequency = challenge.get_frequency_display()
+            # durations = challenge.get_duration_display()
+            return Response(data={"result": "인증 성공"})
+        if request.method == "GET":
+            decoded = JWTAuthentication.authenticate(self, request)
+            challenge = ChallengeApply.objects.filter(challenge_id=self.get_object().pk)[0]
+            user = User.objects.get(id=decoded.id)
+            certification_data = ChallengeCertification.objects.filter(
+                challenge_id=challenge,
+                challenge_participant_id=user,
+            )
+            serializer = ChallengeCertificationSerializer(certification_data, many=True)
+            return Response(data=serializer.data)
 
         def certification_feed_save(success_certification):
             if len(success_certification) < frequency:
@@ -188,6 +207,7 @@ class ChallengeViewSet(ModelViewSet):
                 return Response(data={"result": "이번주 인증은 모두 완료했습니다."})
             return Response(data={"인증 성공"})
 
+    """     
         system_currnet_time = datetime.now().replace(tzinfo=timezone("Asia/Seoul"))
         start_day = challenge.start_day
         end_day = start_day + timedelta(days=7)
@@ -195,9 +215,10 @@ class ChallengeViewSet(ModelViewSet):
             if system_currnet_time < end_day:
                 success_certification = ChallengeCertification.objects.filter(
                     certification_date__range=[start_day, end_day],
-                    challenge_participant_id__exact=profile,
+                    challenge_participant_id__exact=user,
                 )
             elif system_currnet_time > end_day:
                 start_day = start_day + timedelta(days=7)
                 end_day = start_day + timedelta(days=7)
         return certification_feed_save(success_certification)
+        """
