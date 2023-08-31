@@ -74,14 +74,14 @@ class ChallengeApply(models.Model):
         verbose_name="challenge name",
         on_delete=models.CASCADE,
         related_name="challenge_name",
-        null=True,
+        default="",
     )
     member_id = models.ForeignKey(
         "users.Profile",
         verbose_name="member name",
         on_delete=models.CASCADE,
         related_name="member_name",
-        null=True,
+        default="",
     )
 
     created = models.DateTimeField(auto_now=True)
@@ -91,16 +91,20 @@ class ChallengeApply(models.Model):
 
 
 class ChallengeCertification(models.Model):
+    certification_id = models.AutoField(primary_key=True)
     challenge_id = models.ForeignKey(
-        "ChallengeApply",
+        "Challenge",
+        verbose_name="challenge name",
         on_delete=models.CASCADE,
-        related_name="challenge_certification_name",
-    )
-    challenge_participant_id = models.ForeignKey(
-        "users.User",
-        on_delete=models.CASCADE,
+        related_name="applied_challenge",
         default="",
+    )
+    participant_id = models.ForeignKey(
+        "users.Profile",
+        verbose_name="member name",
+        on_delete=models.CASCADE,
         related_name="participant",
+        default="",
     )
     certification_date = models.DateTimeField(auto_now=True)
     certification_photo = models.FileField(upload_to="certification", blank=True, default="")

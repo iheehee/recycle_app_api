@@ -36,8 +36,9 @@ class ChallengeApplyAdmin(admin.ModelAdmin):
 @admin.register(models.ChallengeCertification)
 class ChallengeCertificationAdmin(admin.ModelAdmin):
     list_display = (
+        "certification_id",
         "challenge_id",
-        "challenge_participant_id",
+        "participant_id",
         "certification_date",
         "certification_photo",
         "certification_comment",
