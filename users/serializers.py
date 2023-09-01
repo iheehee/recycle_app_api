@@ -110,4 +110,8 @@ class UserInfoUpdateSerializer(serializers.ModelSerializer):
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
-        fields = ["nickname_id", "avatar", "my_challenges"]
+        fields = (
+            "nickname_id",
+            "avatar",
+            "my_challenges",
+        )

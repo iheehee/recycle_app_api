@@ -93,10 +93,10 @@ class ChallengeApply(models.Model):
 class ChallengeCertification(models.Model):
     certification_id = models.AutoField(primary_key=True)
     challenge_id = models.ForeignKey(
-        "Challenge",
+        "ChallengeApply",
         verbose_name="challenge name",
         on_delete=models.CASCADE,
-        related_name="applied_challenge",
+        related_name="certification_challenge",
         default="",
     )
     participant_id = models.ForeignKey(

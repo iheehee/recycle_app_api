@@ -79,7 +79,7 @@ class ProfileView(APIView):
 
     """프로필 조회"""
 
-    def post(self, request):
+    def get(self, request):
         decoded = JWTAuthentication.authenticate(self, request)
         profile = Profile.objects.filter(nickname_id__exact=decoded.id)[0]
         serializer = ProfileSerializer(profile)

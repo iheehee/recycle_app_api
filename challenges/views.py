@@ -179,22 +179,25 @@ class ChallengeViewSet(ModelViewSet):
             challenge = ChallengeApply.objects.filter(challenge_id=self.get_object().pk)[0]
             user = User.objects.get(id=decoded.id)
             image = request.data.get("file", default=None)
-            ChallengeCertification.objects.create(
+            certification = ChallengeCertification(
                 challenge_id=challenge,
                 challenge_participant_id=user,
                 certification_photo=image,
             )
+            certification.save()
             # frequency = challenge.get_frequency_display()
             # durations = challenge.get_duration_display()
             return Response(data={"result": "인증 성공"})
         if request.method == "GET":
             decoded = JWTAuthentication.authenticate(self, request)
-            challenge = ChallengeApply.objects.filter(challenge_id=self.get_object().pk)[0]
             user = User.objects.get(id=decoded.id)
-            certification_data = ChallengeCertification.objects.filter(
-                challenge_id=challenge,
-                challenge_participant_id=user,
-            )
+            profile = Profile.objects.filter(nickname_id=user)[0]
+            challenge = ChallengeApply.objects.filter(challenge_id=self.get_object().pk)
+            certification_data = ChallengeApply.objects.filter(member_id=profile)[
+                0
+            ].certification_challenge.all()
+
+            print(certification_data)
             serializer = ChallengeCertificationSerializer(certification_data, many=True)
             return Response(data=serializer.data)
 
