@@ -84,3 +84,5 @@ class ProfileView(APIView):
         profile = Profile.objects.filter(nickname_id__exact=decoded.id)[0]
         serializer = ProfileSerializer(profile)
         return Response(serializer.data)
+
+    

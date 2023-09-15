@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate
 # from .authenticate import EmailAuthenticate
 from django.contrib.auth.password_validation import validate_password
 from .models import User, Profile
-from challenges.serializers import ChallengeApplySerializer
+from challenges.serializers import ChallengeSerializer
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -108,6 +108,8 @@ class UserInfoUpdateSerializer(serializers.ModelSerializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
+    my_challenges = ChallengeSerializer(many=True, read_only=True)
+
     class Meta:
         model = Profile
         fields = (

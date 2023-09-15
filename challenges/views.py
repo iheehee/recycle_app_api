@@ -49,7 +49,13 @@ class ChallengeViewSet(ModelViewSet):
             return [AllowAny()]
         if self.action in ["regist_member"]:
             return [IsAuthenticated()]
-        if self.action in ["update", "destroy", "apply_challenge", "leave_challenge"]:
+        if self.action in [
+            "update",
+            "destroy",
+            "apply_challenge",
+            "leave_challenge",
+            "my_certification",
+        ]:
             return [AllowAny()]
 
         return super().get_permissions()
@@ -91,7 +97,9 @@ class ChallengeViewSet(ModelViewSet):
     @action(methods=["delete"], detail=True)
     def leave_challenge(self, request, pk):
         """챌린지 탈퇴"""
-        profile = Profile.objects.get(nickname_id=request.user)
+        decoded = JWTAuthentication.authenticate(self, request)
+        user = User.objects.get(id=decoded.id)
+        profile = Profile.objects.get(nickname_id=user)
         challenge = Challenge.objects.filter(id__exact=self.get_object().pk)[0]
         ChallengeApply.objects.filter(
             challenge_id__exact=challenge, member_id__exact=profile
@@ -99,6 +107,18 @@ class ChallengeViewSet(ModelViewSet):
         number_of_applied_member_count_down = challenge.number_of_applied_member - 1
         Challenge.objects.update(number_of_applied_member=number_of_applied_member_count_down)
         return Response(data={"result": "챌린지를 탈퇴했습니다."})
+
+    @action(methods=["get"], detail=False)
+    def my_certification(self, request):
+        decoded = JWTAuthentication.authenticate(self, request)
+        applied_challenges = ChallengeApply.objects.filter(member_id_id=decoded.id)
+        print(applied_challenges)
+        # profile = Profile.objects.filter(id=2)[0]
+        # my_certification = profile.my_challenges.all()
+
+        #    challenge_id__exact=1, participant_id__exact=2
+
+        return Response(data="None")
 
     @action(methods=["get"], detail=True)
     def certification_status(self, request, pk):
@@ -178,10 +198,11 @@ class ChallengeViewSet(ModelViewSet):
             decoded = JWTAuthentication.authenticate(self, request)
             challenge = ChallengeApply.objects.filter(challenge_id=self.get_object().pk)[0]
             user = User.objects.get(id=decoded.id)
+            profile = Profile.objects.filter(nickname_id=user)[0]
             image = request.data.get("file", default=None)
             certification = ChallengeCertification(
                 challenge_id=challenge,
-                challenge_participant_id=user,
+                participant_id=profile,
                 certification_photo=image,
             )
             certification.save()

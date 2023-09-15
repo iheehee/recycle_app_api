@@ -5,6 +5,7 @@ from . import models
 @admin.register(models.Challenge)
 class ChallengeAdmin(admin.ModelAdmin):
     list_display = (
+        "id",
         "title",
         "owner",
         "title_banner",
