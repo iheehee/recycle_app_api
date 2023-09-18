@@ -92,7 +92,7 @@ class ChallengeApply(models.Model):
 
 class ChallengeCertification(models.Model):
     certification_id = models.AutoField(primary_key=True)
-    challenge_id = models.ForeignKey(
+    applied_id = models.ForeignKey(
         "ChallengeApply",
         verbose_name="challenge name",
         on_delete=models.CASCADE,

@@ -111,14 +111,18 @@ class ChallengeViewSet(ModelViewSet):
     @action(methods=["get"], detail=False)
     def my_certification(self, request):
         decoded = JWTAuthentication.authenticate(self, request)
-        applied_challenges = ChallengeApply.objects.filter(member_id_id=decoded.id)
-        print(applied_challenges)
-        # profile = Profile.objects.filter(id=2)[0]
-        # my_certification = profile.my_challenges.all()
+        challenge_id = request.GET.get("challenge_id")
+        applied_challenges = ChallengeApply.objects.filter(
+            challenge_id_id=challenge_id, member_id_id=decoded.id
+        ).prefetch_related("challenge_id", "certification_challenge")
 
-        #    challenge_id__exact=1, participant_id__exact=2
+        #    .filter(challenge_id_id=challenge_id, member_id_id=decoded.id)
+        # certifications = applied_challenges.certification_challenge.all()
 
-        return Response(data="None")
+        # print(applied_challenges[0].certification_challenge.all())
+        # serializer = ChallengeCertificationSerializer(certifications, many=True)
+        # return Response(data=serializer.data)
+        return Response(data="none")
 
     @action(methods=["get"], detail=True)
     def certification_status(self, request, pk):

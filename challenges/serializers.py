@@ -63,8 +63,8 @@ class ChallengeApplySerializer(serializers.ModelSerializer):
         model = ChallengeApply
         fields = (
             "id",
-            "challenge_name",
-            "member_name",
+            "challenge_id",
+            "member_id",
         )
         read_only_fields = ("id",)
 
@@ -73,7 +73,7 @@ class ChallengeCertificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = ChallengeCertification
         fields = (
-            "challenge_id",
+            "applied_id",
             "participant_id",
             "certification_photo",
             "certification_date",
