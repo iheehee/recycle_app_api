@@ -32,6 +32,7 @@ class Challenge(Core):
     start_day = models.DateTimeField(null=True)
     frequency = models.CharField(max_length=50, choices=FREQUENCY, default="")
     duration = models.CharField(max_length=50, choices=DURATIONS, null=True)
+    certifications = models.ManyToManyField("ChallengeCertification", related_name="Certifications")
     certification_notice = models.TextField(blank=True)
     certification_photo_example = models.ManyToManyField(
         "CertificationExample", related_name="CertificationExample"
@@ -92,8 +93,8 @@ class ChallengeApply(models.Model):
 
 class ChallengeCertification(models.Model):
     certification_id = models.AutoField(primary_key=True)
-    applied_id = models.ForeignKey(
-        "ChallengeApply",
+    challenge_id = models.ForeignKey(
+        "Challenge",
         verbose_name="challenge name",
         on_delete=models.CASCADE,
         related_name="certification_challenge",

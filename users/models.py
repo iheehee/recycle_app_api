@@ -60,6 +60,9 @@ class Profile(models.Model):
     my_challenges = models.ManyToManyField(
         "challenges.Challenge", through="challenges.ChallengeApply"
     )
+    my_certifications = models.ManyToManyField(
+        "challenges.Challenge", through="challenges.ChallengeCertification", related_name="profiles"
+    )
 
     def __str__(self):
         return str(self.nickname_id)

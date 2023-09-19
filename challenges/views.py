@@ -108,22 +108,6 @@ class ChallengeViewSet(ModelViewSet):
         Challenge.objects.update(number_of_applied_member=number_of_applied_member_count_down)
         return Response(data={"result": "챌린지를 탈퇴했습니다."})
 
-    @action(methods=["get"], detail=False)
-    def my_certification(self, request):
-        decoded = JWTAuthentication.authenticate(self, request)
-        challenge_id = request.GET.get("challenge_id")
-        applied_challenges = ChallengeApply.objects.filter(
-            challenge_id_id=challenge_id, member_id_id=decoded.id
-        ).prefetch_related("challenge_id", "certification_challenge")
-
-        #    .filter(challenge_id_id=challenge_id, member_id_id=decoded.id)
-        # certifications = applied_challenges.certification_challenge.all()
-
-        # print(applied_challenges[0].certification_challenge.all())
-        # serializer = ChallengeCertificationSerializer(certifications, many=True)
-        # return Response(data=serializer.data)
-        return Response(data="none")
-
     @action(methods=["get"], detail=True)
     def certification_status(self, request, pk):
         challenge = self.get_object()
@@ -200,19 +184,25 @@ class ChallengeViewSet(ModelViewSet):
     def certification(self, request, pk):
         if request.method == "POST":
             decoded = JWTAuthentication.authenticate(self, request)
-            challenge = ChallengeApply.objects.filter(challenge_id=self.get_object().pk)[0]
+            challenge = Challenge.objects.filter(id=self.get_object().pk)[0]
             user = User.objects.get(id=decoded.id)
             profile = Profile.objects.filter(nickname_id=user)[0]
-            image = request.data.get("file", default=None)
-            certification = ChallengeCertification(
+            # image = request.data.get("file", default=None)
+            ChallengeCertification.objects.create(
                 challenge_id=challenge,
                 participant_id=profile,
-                certification_photo=image,
             )
-            certification.save()
+            # certification_photo=image
+            my_certifications = ChallengeCertification.objects.filter(
+                challenge_id=self.get_object(), participant_id_id=decoded.id
+            ).prefetch_related("challenge_id")
+            # my_challenge = my_certifications.challenge_id.id
+            print(my_certifications)
+            serializer = ChallengeCertificationSerializer(my_certifications, many=True)
             # frequency = challenge.get_frequency_display()
             # durations = challenge.get_duration_display()
-            return Response(data={"result": "인증 성공"})
+
+            return Response(data={"result": "인증 성공", "s": serializer.data})
         if request.method == "GET":
             decoded = JWTAuthentication.authenticate(self, request)
             user = User.objects.get(id=decoded.id)
@@ -222,7 +212,6 @@ class ChallengeViewSet(ModelViewSet):
                 0
             ].certification_challenge.all()
 
-            print(certification_data)
             serializer = ChallengeCertificationSerializer(certification_data, many=True)
             return Response(data=serializer.data)
 
@@ -234,6 +223,20 @@ class ChallengeViewSet(ModelViewSet):
             else:
                 return Response(data={"result": "이번주 인증은 모두 완료했습니다."})
             return Response(data={"인증 성공"})
+
+    @action(methods=["get"], detail=False)
+    def my_certification(self, request):
+        decoded = JWTAuthentication.authenticate(self, request)
+        # challenge_id = request.GET.get("challenge_id")
+        applied_challenges = Challenge.objects.filter(member_id_id=decoded.id).prefetch_related(
+            "challenge_id", "certification_challenge"
+        )[0]
+        certifications = applied_challenges.certification_challenge.all()
+
+        # print(applied_challenges[0].certification_challenge.all())
+        serializer = ChallengeCertificationSerializer(certifications, many=True)
+        # return Response(data=serializer.data)
+        return Response(serializer.data)
 
     """     
         system_currnet_time = datetime.now().replace(tzinfo=timezone("Asia/Seoul"))
