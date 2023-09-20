@@ -54,7 +54,7 @@ class ChallengeViewSet(ModelViewSet):
             "destroy",
             "apply_challenge",
             "leave_challenge",
-            "my_certification",
+            "my_certifications",
         ]:
             return [AllowAny()]
 
@@ -187,22 +187,17 @@ class ChallengeViewSet(ModelViewSet):
             challenge = Challenge.objects.filter(id=self.get_object().pk)[0]
             user = User.objects.get(id=decoded.id)
             profile = Profile.objects.filter(nickname_id=user)[0]
-            # image = request.data.get("file", default=None)
+            image = request.data.get("file", default=None)
             ChallengeCertification.objects.create(
-                challenge_id=challenge,
-                participant_id=profile,
+                challenge_id=challenge, participant_id=profile, certification_photo=image
             )
-            # certification_photo=image
-            my_certifications = ChallengeCertification.objects.filter(
-                challenge_id=self.get_object(), participant_id_id=decoded.id
-            ).prefetch_related("challenge_id")
-            # my_challenge = my_certifications.challenge_id.id
-            print(my_certifications)
-            serializer = ChallengeCertificationSerializer(my_certifications, many=True)
-            # frequency = challenge.get_frequency_display()
-            # durations = challenge.get_duration_display()
 
-            return Response(data={"result": "인증 성공", "s": serializer.data})
+            return Response(
+                data={
+                    "result": "인증 성공",
+                }
+            )
+
         if request.method == "GET":
             decoded = JWTAuthentication.authenticate(self, request)
             user = User.objects.get(id=decoded.id)
@@ -225,18 +220,30 @@ class ChallengeViewSet(ModelViewSet):
             return Response(data={"인증 성공"})
 
     @action(methods=["get"], detail=False)
-    def my_certification(self, request):
+    def my_certifications(self, request):
+        decoded = JWTAuthentication.authenticate(self, request)
+        # challenge_id = request.GET.get("challenge_id")
+        certifications = ChallengeCertification.objects.filter(participant_id_id=decoded.id)
+        serializer = ChallengeCertificationSerializer(certifications, many=True)
+        """ applied_challenges = Challenge.objects.filter(member_id_id=decoded.id).prefetch_related(
+            "challenge_id", "certification_challenge"
+        )[0]
+        certifications = applied_challenges.certification_challenge.all() """
+        serializer = ChallengeCertificationSerializer(certifications, many=True)
+        return Response(serializer.data)
+
+    """ @action(methods=["get"], detail=True)
+    def my_certification_detail(self, request, pk):
         decoded = JWTAuthentication.authenticate(self, request)
         # challenge_id = request.GET.get("challenge_id")
         applied_challenges = Challenge.objects.filter(member_id_id=decoded.id).prefetch_related(
             "challenge_id", "certification_challenge"
         )[0]
-        certifications = applied_challenges.certification_challenge.all()
+        profile = Profile.objects.filter(nickname_id_id=decoded.id)
+        my_certification
 
-        # print(applied_challenges[0].certification_challenge.all())
         serializer = ChallengeCertificationSerializer(certifications, many=True)
-        # return Response(data=serializer.data)
-        return Response(serializer.data)
+        return Response(serializer.data) """
 
     """     
         system_currnet_time = datetime.now().replace(tzinfo=timezone("Asia/Seoul"))
