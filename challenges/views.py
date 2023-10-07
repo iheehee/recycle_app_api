@@ -97,15 +97,17 @@ class ChallengeViewSet(ModelViewSet):
     @action(methods=["delete"], detail=True)
     def leave_challenge(self, request, pk):
         """챌린지 탈퇴"""
+
+        challenge_id = request.GET.get("id", None)
         decoded = JWTAuthentication.authenticate(self, request)
-        user = User.objects.get(id=decoded.id)
-        profile = Profile.objects.get(nickname_id=user)
-        challenge = Challenge.objects.filter(id__exact=self.get_object().pk)[0]
-        ChallengeApply.objects.filter(
-            challenge_id__exact=challenge, member_id__exact=profile
-        ).delete()
+        profile = decoded.profile.first()
+        challenge = Challenge.objects.filter(id=challenge_id).first()
+        applied_challenge = challenge.challenge_name.filter(member_id=profile)
+        applied_challenge.delete()
         number_of_applied_member_count_down = challenge.number_of_applied_member - 1
-        Challenge.objects.update(number_of_applied_member=number_of_applied_member_count_down)
+        challenge.number_of_applied_member = number_of_applied_member_count_down
+        challenge.save()
+
         return Response(data={"result": "챌린지를 탈퇴했습니다."})
 
     @action(methods=["get"], detail=True)
@@ -180,7 +182,7 @@ class ChallengeViewSet(ModelViewSet):
             }
         )
 
-    @action(methods=["post", "get"], detail=True)
+    @action(methods=["post", "get", "delete"], detail=True)
     def certification(self, request, pk):
         if request.method == "POST":
             decoded = JWTAuthentication.authenticate(self, request)
@@ -209,6 +211,16 @@ class ChallengeViewSet(ModelViewSet):
 
             serializer = ChallengeCertificationSerializer(certification_data, many=True)
             return Response(data=serializer.data)
+
+        if request.method == "DELETE":
+            certification_id = request.GET.get("certification_id", None)
+            print(certification_id)
+            # decoded = JWTAuthentication.authenticate(self, request)
+            search_certification = ChallengeCertification.objects.filter(
+                certification_id=certification_id
+            )
+            search_certification.delete()
+            return Response(data={"result": "인증을 삭제했습니다."})
 
         def certification_feed_save(success_certification):
             if len(success_certification) < frequency:
