@@ -7,8 +7,7 @@ from users.models import User
 
 class JWTAuthentication(authentication.BaseAuthentication):
     def authenticate(self, request):
-        token = request.META["HTTP_AUTHORIZATION"]
-        print(token)
+        token = request.META.get("HTTP_AUTHORIZATION", None)
         try:
             if token is None:
                 return None

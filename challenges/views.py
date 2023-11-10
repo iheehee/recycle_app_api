@@ -9,7 +9,6 @@ from .serializers import (
     ChallengeSerializer,
     ChallengeCreateSerializer,
     ChallengeCertificationSerializer,
-    CertificationExampleSerializer,
 )
 from .models import Challenge, ChallengeApply, ChallengeCertification
 from users.models import User, Profile
@@ -45,6 +44,7 @@ class ChallengeViewSet(ModelViewSet):
             "member",
             "certification",
             "certification_status",
+            "leave_challenge",
         ]:
             return [AllowAny()]
         if self.action in ["regist_member"]:
@@ -53,7 +53,6 @@ class ChallengeViewSet(ModelViewSet):
             "update",
             "destroy",
             "apply_challenge",
-            "leave_challenge",
             "my_certifications",
         ]:
             return [AllowAny()]
@@ -90,16 +89,19 @@ class ChallengeViewSet(ModelViewSet):
             challenge.save()
             #  커밋하기전 다시한번 challenge.number_of_applied_member 체크
             # 오버되면 커밋하지않고 롤백
-            return Response(data={"result": "챌린지에 등록되었습니다."}, status=status.HTTP_201_CREATED)
+            return Response(
+                data={"result": "챌린지에 등록되었습니다."}, status=status.HTTP_201_CREATED
+            )
         else:
             return Response(data={"result": "인원이 다 찼습니다."})
 
-    @action(methods=["delete"], detail=True)
-    def leave_challenge(self, request, pk):
+    @action(methods=["delete"], detail=False)
+    def leave_challenge(self, request):
         """챌린지 탈퇴"""
 
-        challenge_id = request.GET.get("id", None)
+        challenge_id = request.GET.get("challenge_id", None)
         decoded = JWTAuthentication.authenticate(self, request)
+        print(decoded)
         profile = decoded.profile.first()
         challenge = Challenge.objects.filter(id=challenge_id).first()
         applied_challenge = challenge.challenge_name.filter(member_id=profile)
@@ -111,7 +113,7 @@ class ChallengeViewSet(ModelViewSet):
         return Response(data={"result": "챌린지를 탈퇴했습니다."})
 
     @action(methods=["get"], detail=True)
-    def certification_status(self, request, pk):
+    def certification_status(self, request):
         challenge = self.get_object()
         profile = request.user
         frequency = challenge.get_frequency_display()
@@ -191,7 +193,9 @@ class ChallengeViewSet(ModelViewSet):
             profile = Profile.objects.filter(nickname_id=user)[0]
             image = request.data.get("file", default=None)
             ChallengeCertification.objects.create(
-                challenge_id=challenge, participant_id=profile, certification_photo=image
+                challenge_id=challenge,
+                participant_id=profile,
+                certification_photo=image,
             )
 
             return Response(
@@ -235,13 +239,15 @@ class ChallengeViewSet(ModelViewSet):
     def my_certifications(self, request):
         decoded = JWTAuthentication.authenticate(self, request)
         # challenge_id = request.GET.get("challenge_id")
-        certifications = ChallengeCertification.objects.filter(participant_id_id=decoded.id)
+        certifications = ChallengeCertification.objects.filter(
+            participant_id_id=decoded.id
+        )
         serializer = ChallengeCertificationSerializer(certifications, many=True)
         """ applied_challenges = Challenge.objects.filter(member_id_id=decoded.id).prefetch_related(
             "challenge_id", "certification_challenge"
         )[0]
         certifications = applied_challenges.certification_challenge.all() """
-        serializer = ChallengeCertificationSerializer(certifications, many=True)
+
         return Response(serializer.data)
 
     """ @action(methods=["get"], detail=True)

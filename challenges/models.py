@@ -26,20 +26,22 @@ class Challenge(Core):
     owner = models.ForeignKey(
         "users.User", on_delete=models.CASCADE, related_name="owner", null=True
     )
-    title_banner = models.ImageField(upload_to="title_banner", default="", blank=True, null=True)
+    title_banner = models.ImageField(
+        upload_to="title_banner", default="", blank=True, null=True
+    )
     challenge_summery = models.CharField(max_length=255, blank=True)
     challenge_description = models.TextField(blank=True)
     start_day = models.DateTimeField(null=True)
     frequency = models.CharField(max_length=50, choices=FREQUENCY, default="")
     duration = models.CharField(max_length=50, choices=DURATIONS, null=True)
-    certifications = models.ManyToManyField("ChallengeCertification", related_name="Certifications")
-    certification_notice = models.TextField(blank=True)
-    certification_photo_example = models.ManyToManyField(
-        "CertificationExample", related_name="CertificationExample"
+    certifications = models.ManyToManyField(
+        "ChallengeCertification", related_name="Certifications"
     )
+    certification_notice = models.TextField(blank=True)
+    success_photo_example = models.ManyToManyField("SuccessPhotoExample", default="")
+    fail_photo_example = models.ManyToManyField("FailPhotoExample", default="")
     member = models.ManyToManyField(
         "users.Profile",
-        related_name="challenges",
         through="ChallengeApply",
     )
     max_member = models.IntegerField(default=1, validators=[MaxValueValidator(20)])
@@ -49,24 +51,40 @@ class Challenge(Core):
         return self.title
 
 
-class CertificationExample(models.Model):
-    name = models.ForeignKey(
+class SuccessPhotoExample(models.Model):
+    challenge_name = models.ForeignKey(
         "Challenge",
+        related_name="challenge_success_photo",
         verbose_name="challenge name",
         on_delete=models.CASCADE,
-        related_name="challenge",
         null=True,
     )
-    certification_photo_example = models.ImageField(
-        verbose_name="certi photo",
-        upload_to="certi_photo_ex",
+    success_photo = models.ImageField(
+        upload_to="success_photo_ex",
         height_field=None,
         width_field=None,
         max_length=None,
         blank=True,
         null=True,
     )
-    SuccessOrFail = models.BooleanField(null=True)
+
+
+class FailPhotoExample(models.Model):
+    challenge_name = models.ForeignKey(
+        "Challenge",
+        related_name="challenge_fail_photo",
+        verbose_name="challenge name",
+        on_delete=models.CASCADE,
+        null=True,
+    )
+    fail_photo = models.ImageField(
+        upload_to="fail_photo_ex",
+        height_field=None,
+        width_field=None,
+        max_length=None,
+        blank=True,
+        null=True,
+    )
 
 
 class ChallengeApply(models.Model):
@@ -108,7 +126,9 @@ class ChallengeCertification(models.Model):
         default="",
     )
     certification_date = models.DateTimeField(auto_now=True)
-    certification_photo = models.FileField(upload_to="certification", blank=True, default="")
+    certification_photo = models.FileField(
+        upload_to="certification", blank=True, default=""
+    )
     certification_comment = models.CharField(max_length=255, blank=True)
 
 

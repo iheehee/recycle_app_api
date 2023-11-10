@@ -16,12 +16,19 @@ class ChallengeAdmin(admin.ModelAdmin):
     )
 
 
-@admin.register(models.CertificationExample)
-class CertificationExampleAdmin(admin.ModelAdmin):
+@admin.register(models.SuccessPhotoExample)
+class SuccessPhotoExample(admin.ModelAdmin):
     list_display = (
-        "name",
-        "certification_photo_example",
-        "SuccessOrFail",
+        "challenge",
+        "success_photo",
+    )
+
+
+@admin.register(models.FailPhotoExample)
+class FailPhotoExample(admin.ModelAdmin):
+    list_display = (
+        "challenge",
+        "fail_photo",
     )
 
 

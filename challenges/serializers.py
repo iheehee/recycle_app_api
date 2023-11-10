@@ -1,22 +1,26 @@
-from .models import Challenge, ChallengeApply, ChallengeCertification, CertificationExample
+from .models import (
+    Challenge,
+    ChallengeApply,
+    ChallengeCertification,
+    SuccessPhotoExample,
+)
 
 # from users.serializers import RelatedUserSerializer
 from rest_framework import serializers
 
 
-class CertificationExampleSerializer(serializers.ModelSerializer):
+class SuccessPhotoExampleSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CertificationExample
+        model = SuccessPhotoExample
         fields = (
             "id",
-            "certification_photo_example",
-            "SuccessOrFail",
+            "success_photo_example",
         )
         read_only_fields = ("id",)
 
 
 class ChallengeSerializer(serializers.ModelSerializer):
-    certification_photo_example = CertificationExampleSerializer(many=True, read_only=True)
+    success_photo_example = SuccessPhotoExampleSerializer(many=True, read_only=True)
 
     class Meta:
         model = Challenge
@@ -30,7 +34,8 @@ class ChallengeSerializer(serializers.ModelSerializer):
             "start_day",
             "frequency",
             "duration",
-            "certification_photo_example",
+            "success_photo_example",
+            "fail_photo_example",
             "certification_notice",
             "member",
             "max_member",
@@ -52,7 +57,6 @@ class ChallengeCreateSerializer(serializers.ModelSerializer):
             "start_day",
             "frequency",
             "duration",
-            "certification_photo_example",
             "certification_notice",
             "max_member",
         )
