@@ -15,6 +15,7 @@ from users.models import User, Profile
 from datetime import timedelta, datetime
 from pytz import timezone
 from django.conf import settings
+import json
 
 
 class ChallengeViewSet(ModelViewSet):
@@ -61,6 +62,14 @@ class ChallengeViewSet(ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         """챌린지 생성"""
+        request_data = request.data.getlist("document", None)[0]
+        # data = eval(request_data)
+        print(json.loads(request_data))
+        data = json.loads(request_data)
+        serializer = ChallengeCreateSerializer(data=data)
+        print(serializer.is_valid())
+        print(serializer.errors)
+        serializer.save()
         return super().create(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs):

@@ -44,22 +44,11 @@ class ChallengeSerializer(serializers.ModelSerializer):
         read_only_fields = ("id",)
 
 
-class ChallengeCreateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Challenge
-        fields = (
-            "id",
-            "title",
-            "owner",
-            "title_banner",
-            "challenge_summery",
-            "challenge_description",
-            "start_day",
-            "frequency",
-            "duration",
-            "certification_notice",
-            "max_member",
-        )
+class ChallengeCreateSerializer(serializers.Serializer):
+    title = serializers.CharField()
+
+    def create(self, validated_data):
+        return Challenge.objects.create(**validated_data)
 
 
 class ChallengeApplySerializer(serializers.ModelSerializer):
