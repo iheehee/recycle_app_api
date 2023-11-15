@@ -29,14 +29,16 @@ class Challenge(Core):
     title_banner = models.ImageField(
         upload_to="title_banner", default="", blank=True, null=True
     )
-    challenge_summery = models.CharField(max_length=255, blank=True)
-    challenge_description = models.TextField(blank=True)
-    start_day = models.DateTimeField(null=True)
+    summery = models.CharField(max_length=255, blank=True)
+    description = models.TextField(blank=True)
+    start_day = models.DateField(null=True)
     frequency = models.CharField(max_length=50, choices=FREQUENCY, default="")
     duration = models.CharField(max_length=50, choices=DURATIONS, null=True)
     certifications = models.ManyToManyField(
         "ChallengeCertification", related_name="Certifications"
     )
+    certifications_start_time = models.CharField(max_length=30, default="", blank=True)
+    certifications_end_time = models.CharField(max_length=30, default="", blank=True)
     certification_notice = models.TextField(blank=True)
     success_photo_example = models.ManyToManyField("SuccessPhotoExample", default="")
     fail_photo_example = models.ManyToManyField("FailPhotoExample", default="")

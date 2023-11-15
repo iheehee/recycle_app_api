@@ -9,8 +9,8 @@ class ChallengeAdmin(admin.ModelAdmin):
         "title",
         "owner",
         "title_banner",
-        "challenge_summery",
-        "challenge_description",
+        "summery",
+        "description",
         "start_day",
         "certification_notice",
     )

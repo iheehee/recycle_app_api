@@ -62,15 +62,17 @@ class ChallengeViewSet(ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         """챌린지 생성"""
-        request_data = request.data.getlist("document", None)[0]
+
         # data = eval(request_data)
-        print(json.loads(request_data))
-        data = json.loads(request_data)
+        print(request.data)
+        data = request.data
         serializer = ChallengeCreateSerializer(data=data)
         print(serializer.is_valid())
         print(serializer.errors)
         serializer.save()
-        return super().create(request, *args, **kwargs)
+        return Response(
+            data={"result": "챌린지에 개설되었습니다."}, status=status.HTTP_201_CREATED
+        )
 
     def update(self, request, *args, **kwargs):
         """챌린지 정보 수정"""
