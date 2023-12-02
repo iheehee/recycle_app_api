@@ -63,15 +63,19 @@ class ChallengeViewSet(ModelViewSet):
     def create(self, request, *args, **kwargs):
         """챌린지 생성"""
 
-        # data = eval(request_data)
-        print(request.data)
-        data = request.data
-        serializer = ChallengeCreateSerializer(data=data)
-        print(serializer.is_valid())
-        print(serializer.errors)
-        serializer.save()
+        data = request.POST.get("document", None)
+        user = JWTAuthentication.authenticate(self, request)
+        serializer = ChallengeCreateSerializer(
+            data=eval(data), context={"request": request, "user": user}
+        )
+        if serializer.is_valid():
+            serializer.save()
+        else:
+            return Response({}, status=status.HTTP_400_BAD_REQUEST)
+
         return Response(
-            data={"result": "챌린지에 개설되었습니다."}, status=status.HTTP_201_CREATED
+            data={"result": "챌린지에 개설되었습니다.", "data": serializer.data},
+            status=status.HTTP_201_CREATED,
         )
 
     def update(self, request, *args, **kwargs):
@@ -198,16 +202,30 @@ class ChallengeViewSet(ModelViewSet):
     @action(methods=["post", "get", "delete"], detail=True)
     def certification(self, request, pk):
         if request.method == "POST":
+            document = request.data.get("document", None)
+            image = request.data.get("file", None)
             decoded = JWTAuthentication.authenticate(self, request)
-            challenge = Challenge.objects.filter(id=self.get_object().pk)[0]
-            user = User.objects.get(id=decoded.id)
+            data = {
+                "certification_comment": eval(document)["comment"],
+                "challenge_id": eval(document)["challenge_id"],
+                "certification_photo": image,
+            }
+            serializer = ChallengeCertificationSerializer(
+                data=data,
+                context={"user": decoded},
+            )
+            if serializer.is_valid():
+                serializer.save()
+            else:
+                return Response({}, status=status.HTTP_400_BAD_REQUEST)
+            """ challenge = Challenge.objects.filter(id=self.get_object().pk)[0]
             profile = Profile.objects.filter(nickname_id=user)[0]
             image = request.data.get("file", default=None)
             ChallengeCertification.objects.create(
                 challenge_id=challenge,
                 participant_id=profile,
                 certification_photo=image,
-            )
+            ) """
 
             return Response(
                 data={

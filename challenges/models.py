@@ -1,6 +1,7 @@
 from django.db import models
-from django.core.validators import MaxValueValidator
+from django.core.validators import MaxValueValidator, FileExtensionValidator
 from core.models import Core
+import os
 
 
 class Challenge(Core):
@@ -53,6 +54,15 @@ class Challenge(Core):
         return self.title
 
 
+def upload_to_success_photo(instance, file_name):
+    return os.path.join(
+        instance.owner.email,
+        instance.challenge_name.title,
+        "success_photo_ex",
+        file_name,
+    )
+
+
 class SuccessPhotoExample(models.Model):
     challenge_name = models.ForeignKey(
         "Challenge",
@@ -62,12 +72,29 @@ class SuccessPhotoExample(models.Model):
         null=True,
     )
     success_photo = models.ImageField(
-        upload_to="success_photo_ex",
+        upload_to=upload_to_success_photo,
         height_field=None,
         width_field=None,
         max_length=None,
         blank=True,
         null=True,
+    )
+    owner = models.ForeignKey(
+        "users.User",
+        verbose_name="owner",
+        on_delete=models.CASCADE,
+        related_name="success_photo_owner",
+        default="",
+        null=True,
+    )
+
+
+def upload_to_fail_photo(instance, file_name):
+    return os.path.join(
+        instance.owner.email,
+        instance.challenge_name.title,
+        "fail_photo_ex",
+        file_name,
     )
 
 
@@ -80,12 +107,19 @@ class FailPhotoExample(models.Model):
         null=True,
     )
     fail_photo = models.ImageField(
-        upload_to="fail_photo_ex",
+        upload_to=upload_to_fail_photo,
         height_field=None,
         width_field=None,
         max_length=None,
         blank=True,
         null=True,
+    )
+    owner = models.ForeignKey(
+        "users.User",
+        verbose_name="member name",
+        on_delete=models.CASCADE,
+        related_name="fail_photo_owner",
+        default="",
     )
 
 

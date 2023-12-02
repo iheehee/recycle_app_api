@@ -18,17 +18,15 @@ class ChallengeAdmin(admin.ModelAdmin):
 
 @admin.register(models.SuccessPhotoExample)
 class SuccessPhotoExample(admin.ModelAdmin):
-    list_display = (
-        "challenge",
-        "success_photo",
-    )
+    list_display = ("challenge_name", "success_photo", "owner")
 
 
 @admin.register(models.FailPhotoExample)
 class FailPhotoExample(admin.ModelAdmin):
     list_display = (
-        "challenge",
+        "challenge_name",
         "fail_photo",
+        "owner",
     )
 
 
