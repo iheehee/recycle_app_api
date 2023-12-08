@@ -10,12 +10,12 @@ from .serializers import (
     ChallengeCreateSerializer,
     ChallengeCertificationSerializer,
 )
+from .nestedserializers import NestedCertificationSerializer
 from .models import Challenge, ChallengeApply, ChallengeCertification
 from users.models import User, Profile
 from datetime import timedelta, datetime
 from pytz import timezone
 from django.conf import settings
-import json
 
 
 class ChallengeViewSet(ModelViewSet):
@@ -62,7 +62,6 @@ class ChallengeViewSet(ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         """챌린지 생성"""
-
         data = request.POST.get("document", None)
         user = JWTAuthentication.authenticate(self, request)
         serializer = ChallengeCreateSerializer(
@@ -71,6 +70,7 @@ class ChallengeViewSet(ModelViewSet):
         if serializer.is_valid():
             serializer.save()
         else:
+            print(serializer.errors)
             return Response({}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response(
@@ -234,15 +234,10 @@ class ChallengeViewSet(ModelViewSet):
             )
 
         if request.method == "GET":
-            decoded = JWTAuthentication.authenticate(self, request)
-            user = User.objects.get(id=decoded.id)
-            profile = Profile.objects.filter(nickname_id=user)[0]
-            challenge = ChallengeApply.objects.filter(challenge_id=self.get_object().pk)
-            certification_data = ChallengeApply.objects.filter(member_id=profile)[
-                0
-            ].certification_challenge.all()
-
-            serializer = ChallengeCertificationSerializer(certification_data, many=True)
+            certification_data = ChallengeCertification.objects.filter(
+                challenge_id_id=pk
+            )
+            serializer = NestedCertificationSerializer(certification_data, many=True)
             return Response(data=serializer.data)
 
         if request.method == "DELETE":
@@ -271,7 +266,7 @@ class ChallengeViewSet(ModelViewSet):
         certifications = ChallengeCertification.objects.filter(
             participant_id_id=decoded.id
         )
-        serializer = ChallengeCertificationSerializer(certifications, many=True)
+        serializer = NestedCertificationSerializer(certifications, many=True)
         """ applied_challenges = Challenge.objects.filter(member_id_id=decoded.id).prefetch_related(
             "challenge_id", "certification_challenge"
         )[0]

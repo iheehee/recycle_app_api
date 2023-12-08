@@ -10,6 +10,10 @@ from .models import (
 from rest_framework import serializers
 from core.authentication import JWTAuthentication
 
+# from users.serializers import ProfileSerializer
+
+# from .nestedserializers import NestedCertificationSerializer
+
 
 class SuccessPhotoExampleSerializer(serializers.ModelSerializer):
     class Meta:
@@ -119,7 +123,9 @@ class ChallengeApplySerializer(serializers.ModelSerializer):
 
 
 class ChallengeCertificationSerializer(serializers.ModelSerializer):
-    participant_id = serializers.StringRelatedField(read_only=True)
+    # from users.serializers import ProfileSerializer
+
+    # participant_id = ProfileSerializer(read_only=True)
 
     class Meta:
         model = ChallengeCertification

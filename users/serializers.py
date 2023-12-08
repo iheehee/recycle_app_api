@@ -5,6 +5,7 @@ from django.contrib.auth import authenticate
 # from .authenticate import EmailAuthenticate
 from django.contrib.auth.password_validation import validate_password
 from .models import User, Profile
+
 from challenges.serializers import ChallengeSerializer
 
 
@@ -83,7 +84,9 @@ class LoginSerializer(serializers.Serializer):
 class UserInfoUpdateSerializer(serializers.ModelSerializer):
     """회원정보 수정"""
 
-    nickname = serializers.CharField(validators=[UniqueValidator(queryset=User.objects.all())])
+    nickname = serializers.CharField(
+        validators=[UniqueValidator(queryset=User.objects.all())]
+    )
 
     class Meta:
         model = User
@@ -108,7 +111,8 @@ class UserInfoUpdateSerializer(serializers.ModelSerializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-    my_challenges = ChallengeSerializer(many=True, read_only=True)
+    nickname_id = serializers.StringRelatedField()
+    my_challenges = ChallengeSerializer(many=True)
 
     class Meta:
         model = Profile
